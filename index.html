@@ -1,223 +1,124 @@
 <!DOCTYPE html>
-
-<!-- saved from url=(0022)https://www.wrk.money/ -->
 <html lang="en">
-<head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
-<!-- Favicon -->
-<link rel="icon" href="/wrk_files/999circle.png" type="image/png">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>wrk</title>
+  <link rel="icon" href="/wrk_files/999circle.png" type="image/png">
+  <meta name="description" content="wrk — cybersecurity student / physical-sec dev.">
+  <meta name="keywords" content="wrk, cybersecurity, dev, portfolio, telegram, discord">
+  <meta property="og:title" content="Wrk's Desk." />
+  <meta property="og:description" content="A website to learn a little more about Wrk, or contact him!" />
+  <meta property="og:url" content="https://wrk.money" />
+  <meta property="og:image" content="https://wrk.money/wrk_files/avatar.png" />
 
-<!-- Meta Tags -->
-<meta http-equiv="Content-Security-Policy" content="
-  default-src 'self';
-  img-src 'self' data:;
-  script-src 'self' 'unsafe-inline';
-  style-src 'self' 'unsafe-inline';
-  connect-src 'self' https://api.lanyard.rest;
-">
-<meta name="description" content="wrk — cybersecurity student / physical-sec dev.">
-<meta name="keywords" content="wrk, cybersecurity, dev, portfolio, telegram, discord">
-<meta property="og:title" content="Wrk's Desk." />
-<meta property="og:description" content="A website to learn a little more about Wrk, or contact him!" />
-<meta property="og:url" content="https://wrk.money" />
-<meta property="og:image" content="https://wrk.money/wrk_files/avatar.png" /><link as="font" crossorigin="" href="https://www.wrk.money/_next/static/media/4f05ba3a6752a328-s.p.woff2" rel="preload" type="font/woff2"/><link as="font" crossorigin="" href="https://www.wrk.money/_next/static/media/a34f9d1faa5f3315-s.p.woff2" rel="preload" type="font/woff2"/><link data-precedence="next" href="./wrk_files/b71a989fe353739b.css" rel="stylesheet"/><link as="script" fetchpriority="low" href="./wrk_files/webpack-23a8c4cf1ae48564.js.download" rel="preload"/><script async="" src="./wrk_files/11eacf67-c6ca5738f18d4a0b.js.download"></script><script async="" src="./wrk_files/954-e7d89d094a894dce.js.download"></script><script async="" src="./wrk_files/main-app-cab89fa599454fd8.js.download"></script><meta content="" name="next-size-adjust"/><title>wrk</title>
-<meta content="Personal website for wrk" name="description"/><meta content="v0.dev" name="generator"/><script nomodule="" src="./wrk_files/polyfills-42372ed130431b0a.js.download"></script></head><body class="__variable_d65c78 __variable_4bc053 bg-black text-white font-sans">
-<div id="splash" onclick="enterSite()" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(0,0,0,0.9);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;font-family:sans-serif;text-align:center;cursor:pointer;">
-<h1 style="font-size:2rem;margin-bottom:0.5rem;">Click / Tap Anywhere to Enter</h1>
-<p style="font-size:0.9rem;opacity:0.7;">Audio will begin playing</p>
+  <!-- Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.lanyard.rest https://lanyard.cnrad.dev;">
+
+  <!-- Tailwind (or your preferred CSS) -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-black text-white font-sans">
+
+<!-- Splash Screen -->
+<div id="splash" onclick="enterSite()" class="fixed top-0 left-0 w-full h-full z-50 bg-black bg-opacity-90 backdrop-blur-sm flex flex-col justify-center items-center text-center cursor-pointer">
+  <h1 class="text-2xl mb-2">Click / Tap Anywhere to Enter</h1>
+  <p class="text-sm opacity-70">Audio will begin playing</p>
 </div>
-<script async="" src="./wrk_files/webpack-23a8c4cf1ae48564.js.download"></script><script>(self.__next_f=self.__next_f||[]).push([0])</script><script>self.__next_f.push([1,"1:\"$Sreact.fragment\"\n2:I[1063,[],\"\"]\n3:I[1483,[],\"\"]\n4:I[5234,[],\"ClientPageRoot\"]\n5:I[2368,[\"482\",\"static/chunks/482-b7a25cd012869ee7.js\",\"974\",\"static/chunks/app/page-50844d9cbf0e6b11.js\"],\"default\"]\n8:I[5125,[],\"OutletBoundary\"]\nb:I[5125,[],\"ViewportBoundary\"]\nd:I[5125,[],\"MetadataBoundary\"]\nf:I[1954,[],\"\"]\n:HL[\"/_next/static/media/4f05ba3a6752a328-s.p.woff2\",\"font\",{\"crossOrigin\":\"\",\"type\":\"font/woff2\"}]\n:HL[\"/_next/static/media/a34f9d1faa5f3315-s.p.woff2\",\"font\",{\"crossOrigin\":\"\",\"type\":\"font/woff2\"}]\n:HL[\"/_next/static/css/b71a989fe353739b.css\",\"style\"]\n"])</script><script>self.__next_f.push([1,"0:{\"P\":null,\"b\":\"b9AOUx7YHb5bEAqh8Klox\",\"p\":\"\",\"c\":[\"\",\"\"],\"i\":false,\"f\":[[[\"\",{\"children\":[\"__PAGE__\",{}]},\"$undefined\",\"$undefined\",true],[\"\",[\"$\",\"$1\",\"c\",{\"children\":[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/_next/static/css/b71a989fe353739b.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"children\":[\"$\",\"body\",null,{\"className\":\"__variable_d65c78 __variable_4bc053 bg-black text-white font-sans\",\"children\":[\"$\",\"$L2\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L3\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":404}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],[]],\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]}]}]]}],{\"children\":[\"__PAGE__\",[\"$\",\"$1\",\"c\",{\"children\":[[\"$\",\"$L4\",null,{\"Component\":\"$5\",\"searchParams\":{},\"params\":{},\"promises\":[\"$@6\",\"$@7\"]}],\"$undefined\",null,[\"$\",\"$L8\",null,{\"children\":[\"$L9\",\"$La\",null]}]]}],{},null,false]},null,false],[\"$\",\"$1\",\"h\",{\"children\":[null,[\"$\",\"$1\",\"iaQdrYQcEnTORY-dY4X72\",{\"children\":[[\"$\",\"$Lb\",null,{\"children\":\"$Lc\"}],[\"$\",\"meta\",null,{\"name\":\"next-size-adjust\",\"content\":\"\"}]]}],[\"$\",\"$Ld\",null,{\"children\":\"$Le\"}]]}],false]],\"m\":\"$undefined\",\"G\":[\"$f\",\"$undefined\"],\"s\":false,\"S\":true}\n"])</script><script>self.__next_f.push([1,"6:{}\n7:{}\n"])</script><script>self.__next_f.push([1,"c:[[\"$\",\"meta\",\"0\",{\"charSet\":\"utf-8\"}],[\"$\",\"meta\",\"1\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}]]\n9:null\n"])</script><script>self.__next_f.push([1,"a:null\ne:[[\"$\",\"title\",\"0\",{\"children\":\"wrk\"}],[\"$\",\"meta\",\"1\",{\"name\":\"description\",\"content\":\"Personal website for wrk\"}],[\"$\",\"meta\",\"2\",{\"name\":\"generator\",\"content\":\"v0.dev\"}]]\n"])</script><next-route-announcer style="position: absolute;"><template shadowrootmode="open"><div aria-live="assertive" id="__next-route-announcer__" role="alert" style="position: absolute; border: 0px; height: 1px; margin: -1px; padding: 0px; width: 1px; clip: rect(0px, 0px, 0px, 0px); overflow: hidden; white-space: nowrap; overflow-wrap: normal;"></div></template></next-route-announcer><main class="min-h-screen animated-gradient text-white flex flex-col items-center justify-center p-4 relative"><div class="w-full max-w-3xl mx-auto flex flex-col gap-6 py-8"><div class="text-center mb-4" style="opacity: 1; transform: none;"><div class="text-2xl md:text-3xl font-mono tracking-wider"><span id="live-time">--:--</span></div><div class="text-sm text-zinc-400 mt-1">Monday, July 7, 2025</div></div><div class="glass rounded-lg p-6 glow" style="opacity: 1; transform: none;"><div class="flex items-center gap-5"><div class="relative w-20 h-20 rounded-full overflow-hidden border-2 border-zinc-800 glow"><img alt="Profile" class="w-full h-full object-cover" src="./wrk_files/juice-wrld-gif-2.png"/></div><div class="flex flex-col"><h1 class="text-2xl font-bold tracking-wide">wrk</h1><p class="text-zinc-400 text-sm mt-1">
-  <span id="typewriter"></span><span id="cursor">|</span>
-</p>
-</div></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="glass rounded-lg p-5 h-full glow" style="opacity: 1; transform: none;"><div class="flex items-center gap-3 mb-3"><svg fill="currentColor" height="18" viewbox="0 0 16 16" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.041.041 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.051.051 0 0 0-.018-.011 8.875 8.875 0 0 1-1.248-.595.05.05 0 0 1-.02-.066.051.051 0 0 1 .015-.019c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.052.052 0 0 1 .053.007c.08.066.164.132.248.195a.051.051 0 0 1-.004.085 8.254 8.254 0 0 1-1.249.594.05.05 0 0 0-.03.03.052.052 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"></path></svg><div class="glass rounded-lg p-5 h-full glow" style="opacity: 1; transform: none;"><div class="glass rounded-lg p-5 h-full glow" style="opacity: 1; transform: none;">
-  <h3 class="text-sm font-medium mb-2">Discord Status</h3>
-  <iframe
-    src="https://lanyard.cnrad.dev/api/577300949044035584"
-    style="border:none;width:100%;height:150px;background:#18181b;border-radius:0.5rem;"
-    loading="lazy"
-  ></iframe>
-</div>
-</div>
-<h3 class="text-white font-bold text-lg mb-2">🎵 Currently Playing</h3>
-<p class="mb-2 text-white">In da party - Smokedope2016</p>
-<audio
-  autoplay
-  loop
-  controls
-  playsinline
-  preload="auto"
-  style="width: 100%; filter: invert(1) brightness(0.8) contrast(1.2); border-radius: 10px;"
->
-  <source src="wrk_files/in-da-party.mp3" type="audio/mp3" />
-  Your browser does not support the audio element.
-</audio>
-</div>
-</div><div class="grid grid-cols-1 gap-4"></div><div class="glass rounded-lg p-5 glow" style="opacity: 1; transform: none;"><h3 class="text-sm font-medium mb-4">Socials</h3><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 place-items-center"><a class="flex flex-col items-center justify-center p-2 rounded-lg glass glass-hover transition-all duration-300" href="https://discord.com/users/577300949044035584" rel="noopener noreferrer" target="_blank"><div class="flex items-center justify-center w-10 h-10 rounded-full bg-zinc-800/80 mb-2 glow overflow-hidden"><svg fill="currentColor" height="22" viewbox="0 0 16 16" width="22" xmlns="http://www.w3.org/2000/svg"><path d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.041.041 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.051.051 0 0 0-.018-.011 8.875 8.875 0 0 1-1.248-.595.05.05 0 0 1-.02-.066.051.051 0 0 1 .015-.019c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.052.052 0 0 1 .053.007c.08.066.164.132.248.195a.051.051 0 0 1-.004.085 8.254 8.254 0 0 1-1.249.594.05.05 0 0 0-.03.03.052.052 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"></path></svg></div><span class="text-sm">Discord</span></a><a class="flex flex-col items-center justify-center p-2 rounded-lg glass glass-hover transition-all duration-300" href="https://steamcommunity.com/id/wrk999/" rel="noopener noreferrer" target="_blank"><div class="flex items-center justify-center w-10 h-10 rounded-full bg-zinc-800/80 mb-2 glow overflow-hidden"><svg fill="currentColor" height="22" viewbox="0 0 16 16" width="22" xmlns="http://www.w3.org/2000/svg"><path d="M.329 10.333A8.01 8.01 0 0 0 7.99 16C12.414 16 16 12.418 16 8s-3.586-8-8.009-8A8.006 8.006 0 0 0 0 7.468l.003.006 4.304 1.769A2.198 2.198 0 0 1 5.62 8.88l1.96-2.844-.001-.04a3.046 3.046 0 0 1 3.042-3.043 3.046 3.046 0 0 1 3.042 3.043 3.047 3.047 0 0 1-3.111 3.044l-2.804 2a2.223 2.223 0 0 1-3.075 2.11 2.217 2.217 0 0 1-1.312-1.568L.33 10.333Z"></path><path d="M4.868 12.683a1.715 1.715 0 0 0 1.318-3.165 1.705 1.705 0 0 0-1.263-.02l1.023.424a1.261 1.261 0 1 1-.97 2.33l-.99-.41a1.7 1.7 0 0 0 .882.84Zm3.726-6.687a2.03 2.03 0 0 0 2.027 2.029 2.03 2.03 0 0 0 2.027-2.029 2.03 2.03 0 0 0-2.027-2.027 2.03 2.03 0 0 0-2.027 2.027Zm2.03-1.527a1.524 1.524 0 1 1-.002 3.048 1.524 1.524 0 0 1 .002-3.048Z"></path></svg></div><span class="text-sm">Steam</span></a><a class="flex flex-col items-center justify-center p-2 rounded-lg glass glass-hover transition-all duration-300" href="https://www.roblox.com/users/1026048574/profile" rel="noopener noreferrer" target="_blank"><div class="flex items-center justify-center w-10 h-10 rounded-full bg-zinc-800/80 mb-2 glow overflow-hidden"><svg fill="currentColor" height="22" viewbox="0 0 24 24" width="22" xmlns="http://www.w3.org/2000/svg"><path d="M5.164 0L0 4.857l.008 14.286L5.164 24l4.197-5.143L5.165 14l4.196-4.857L5.164 4.57l4.197-4.57L5.164 0zm13.672 0l-4.197 4.57 4.197 4.573-4.197 4.857 4.197 4.857L23.03 24 24 19.143 23.992 4.857 18.836 0z"></path></svg></div><span class="text-sm">Roblox</span></a>
-<a class="flex flex-col items-center justify-center p-2 rounded-lg glass glass-hover transition-all duration-300" href="https://instagram.com/up4i" rel="noopener noreferrer" target="_blank">
-<div class="flex items-center justify-center w-10 h-10 rounded-full bg-zinc-800/80 mb-2 glow overflow-hidden"><svg fill="currentColor" height="22" viewbox="0 0 24 24" width="22" xmlns="http://www.w3.org/2000/svg"><path d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm0 2h10c1.654 0 3 1.346 3 3v10c0 1.654-1.346 3-3 3H7c-1.654 0-3-1.346-3-3V7c0-1.654 1.346-3 3-3zm5 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm4.5-.5a1.5 1.5 0 1 0 .001 2.999A1.5 1.5 0 0 0 16.5 5.5z"></path></svg></div>
-<span class="text-sm">Instagram</span>
-</a>
-<a class="flex flex-col items-center justify-center p-2 rounded-lg glass glass-hover transition-all duration-300" href="https://t.me/wrkfn" rel="noopener noreferrer" target="_blank">
-<div class="flex items-center justify-center w-10 h-10 rounded-full bg-zinc-800/80 mb-2 glow overflow-hidden"><svg fill="currentColor" height="22" viewbox="0 0 24 24" width="22" xmlns="http://www.w3.org/2000/svg"><path d="M9.993 16.207l-.39 5.513c.561 0 .806-.242 1.099-.531l2.637-2.51 5.47 3.983c1.003.553 1.718.263 2.01-.928L24 4.35c.314-1.305-.467-1.817-1.408-1.486L1.115 9.63C-.24 10.158-.22 10.944.93 11.284l5.738 1.79L19.288 6.27c.63-.393 1.21-.175.736.25L9.993 16.207z"></path></svg></div>
-<span class="text-sm">Telegram</span>
-</a>
-<a class="flex flex-col items-center justify-center p-2 rounded-lg glass glass-hover transition-all duration-300" href="https://discord.gg/wrks" rel="noopener noreferrer" target="_blank">
-<div class="flex items-center justify-center w-10 h-10 rounded-full bg-zinc-800/80 mb-2 glow overflow-hidden">
-<svg fill="currentColor" height="20" viewbox="0 0 16 16" width="20" xmlns="http://www.w3.org/2000/svg">
-<path d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.041.041 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.051.051 0 0 0-.018-.011 8.875 8.875 0 0 1-1.248-.595.05.05 0 0 1-.02-.066.051.051 0 0 1 .015-.019c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.052.052 0 0 1 .053.007c.08.066.164.132.248.195a.051.051 0 0 1-.004.085 8.254 8.254 0 0 1-1.249.594.05.05 0 0 0-.03.03.052.052 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"></path>
-</svg>
-</div>
-<span class="text-sm">/wrks</span>
-</a>
-</div></div><div class="glass rounded-lg p-5 glow" style="opacity: 1; transform: none;"><h3 class="text-sm font-medium mb-4">Payments</h3><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 place-items-center"><a class="flex flex-col items-center justify-center p-4 rounded-lg glass glass-hover transition-all duration-300" href="https://www.paypal.com/paypalme/g6zey" rel="noopener noreferrer" target="_blank"><div class="flex items-center justify-center w-12 h-12 rounded-full bg-zinc-800/80 mb-3 glow overflow-hidden"><svg fill="currentColor" height="22" viewbox="0 0 24 24" width="22"><path d="M5 3h14a2 2 0 0 1 2 2v1H3V5a2 2 0 0 1 2-2zM3 8h18v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"></path></svg></div><span class="text-sm">PayPal</span></a><a class="flex flex-col items-center justify-center p-4 rounded-lg glass glass-hover transition-all duration-300" href="https://cash.app/$sleepydidit" rel="noopener noreferrer" target="_blank"><div class="flex items-center justify-center w-12 h-12 rounded-full bg-zinc-800/80 mb-3 glow overflow-hidden"><svg fill="currentColor" height="22" viewbox="0 0 24 24" width="22"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"></path></svg></div><span class="text-sm">Cashapp</span></a><button class="flex flex-col items-center justify-center p-4 rounded-lg glass glass-hover transition-all duration-300" onclick="copyToClipboard('0x02746807aB8a2a88d3D93dE3c595259984dDE738')"><div class="flex items-center justify-center w-12 h-12 rounded-full bg-zinc-800/80 mb-3 glow overflow-hidden"><svg fill="currentColor" height="22" viewbox="0 0 320 512" width="22"><path d="M160 0L0 256l160 112 160-112L160 0z"></path></svg></div><span class="text-sm">ETH</span></button><button class="flex flex-col items-center justify-center p-4 rounded-lg glass glass-hover transition-all duration-300" onclick="copyToClipboard('MSPTT8F24NtXmLwFJq7rEE4CLWNyww28is')"><div class="flex items-center justify-center w-12 h-12 rounded-full bg-zinc-800/80 mb-3 glow overflow-hidden"><svg fill="currentColor" height="22" viewbox="0 0 320 512" width="22"><path d="M160 0L120 160h40l-40 192h80l-40 160h80l40-160h40l40-192H200l40-160H160z"></path></svg></div><span class="text-sm">LTC</span></button></div></div><div class="text-center text-zinc-500 text-sm mt-4"><p>999 wrld.</p></div><div class="text-center text-zinc-600 text-xs mt-8">...and for my beautiful wife Keona, i'll love you forever. <3</div></div><div aria-label="Notifications (F8)" role="region" style="pointer-events: none;" tabindex="-1"><ol class="fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]" tabindex="-1"></ol></div></main><script>
-window.addEventListener('DOMContentLoaded', () => {
-  const audio = document.querySelector('audio');
-  if (audio) {
-    audio.play().catch(() => {
-      // some browsers block autoplay; leave it alone
-    });
-  }
-});
-</script><script><span id="live-time">--:--</span></script><script>
+
+<!-- Main Content -->
+<main class="min-h-screen flex flex-col items-center justify-center p-4">
+  <div class="w-full max-w-3xl space-y-6 py-8">
+    <!-- Time + Date -->
+    <div class="text-center">
+      <div class="text-2xl font-mono tracking-wider" id="live-time">--:--</div>
+      <div class="text-sm text-zinc-400" id="live-date">Loading...</div>
+    </div>
+
+    <!-- Profile + Typewriter -->
+    <div class="glass rounded-lg p-6">
+      <div class="flex items-center gap-5">
+        <img class="w-20 h-20 object-cover rounded-full border-2 border-zinc-800" src="./wrk_files/juice-wrld-gif-2.png" alt="Profile">
+        <div>
+          <h1 class="text-2xl font-bold">wrk</h1>
+          <p class="text-zinc-400 text-sm mt-1">
+            <span id="typewriter"></span><span id="cursor">|</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status + Audio -->
+    <div class="grid md:grid-cols-2 gap-4">
+      <!-- Discord Status (iframe version) -->
+      <div class="glass rounded-lg p-5">
+        <h3 class="text-sm font-medium mb-2">Discord Status</h3>
+        <iframe
+          src="https://lanyard.cnrad.dev/api/577300949044035584"
+          style="border:none;width:100%;height:150px;background:#18181b;border-radius:0.5rem;"
+          loading="lazy">
+        </iframe>
+      </div>
+
+      <!-- Audio -->
+      <div class="glass rounded-lg p-5">
+        <h3 class="text-white font-bold text-lg mb-2">🎵 Currently Playing</h3>
+        <p class="mb-2 text-white">In da party - Smokedope2016</p>
+        <audio autoplay loop controls playsinline preload="auto" style="width: 100%; filter: invert(1) brightness(0.8) contrast(1.2); border-radius: 10px;">
+          <source src="wrk_files/in-da-party.mp3" type="audio/mp3" />
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
 function enterSite() {
   const splash = document.getElementById('splash');
   splash.style.display = 'none';
   document.body.style.overflow = 'auto';
-
   const audio = document.querySelector('audio');
-  if (audio) {
-    if (audio.paused) {
-      audio.play().catch(err => console.log("Autoplay blocked:", err));
-    }
-  }
+  if (audio) audio.play().catch(() => {});
 }
+
 function updateTime() {
-  const clock = document.querySelector('#live-time');
-  if (clock) {
-    const now = new Date();
-    let hours = now.getHours();
-    let minutes = now.getMinutes();
-    let ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-    if (minutes < 10) minutes = '0' + minutes;
-    clock.textContent = hours + ':' + minutes + ' ' + ampm;
-  }
+  const now = new Date();
+  document.getElementById('live-time').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('live-date').textContent = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 }
 setInterval(updateTime, 1000);
 updateTime();
-</script><script>
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert('Copied: ' + text);
-      }).catch(err => {
-        console.error('Copy failed', err);
-      });
+
+const roles = ["Cybersecurity Student", "Physical Security Dev", "Founder @ /wrks", "I love my beautiful wife!!!!"];
+let roleIndex = 0;
+let charIndex = 0;
+let typing = true;
+
+function typewriterEffect() {
+  const display = document.getElementById("typewriter");
+  const cursor = document.getElementById("cursor");
+  const current = roles[roleIndex];
+
+  if (typing) {
+    if (charIndex <= current.length) {
+      display.textContent = current.slice(0, charIndex++);
+    } else {
+      typing = false;
+      setTimeout(typewriterEffect, 1000);
+      return;
     }
-    </script><script>
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    alert('Copied: ' + text);
-  }).catch(err => {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-    try {
-      document.execCommand('copy');
-      alert('Copied: ' + text);
-    } catch (err) {
-      alert('Failed to copy.');
-    }
-    document.body.removeChild(textarea);
-  });
-}
-</script></body></html>
-<script>
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    alert('Copied: ' + text);
-  }).catch(err => {
-    console.error('Copy failed', err);
-  });
-}
-</script>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    async function fetchLanyard() {
-      try {
-        const res = await fetch('https://api.lanyard.rest/v1/users/577300949044035584');
-        const data = await res.json();
-        if (!data.success) return;
-        const { discord_status, activities } = data.data;
-        const dot = document.getElementById('status-dot');
-        const text = document.getElementById('custom-status');
-        const map = {
-          online: 'bg-green-500',
-          dnd: 'bg-red-500',
-          idle: 'bg-yellow-500',
-          offline: 'bg-gray-500'
-        };
-        if (dot) dot.className = `w-3 h-3 rounded-full ${map[discord_status] || 'bg-gray-500'}`;
-        const custom = activities.find(a => a.type === 4);
-        if (text) text.textContent = custom?.state || 'No status';
-      } catch (e) {
-        console.error('Lanyard error:', e);
-      }
-    }
-
-    fetchLanyard();
-    setInterval(fetchLanyard, 15000);
-  });
-</script>
-<script>
-const phrases = [
-  "Cybersecurity Student",
-  "Physical Security Developer",
-  "Founder @ /wrks",
-  "I love my beautiful wife!!!!"
-];
-
-let i = 0; // phrase index
-let j = 0; // character index
-let isDeleting = false;
-let currentText = '';
-let delay = 100;
-
-const typewriter = document.getElementById('typewriter');
-const cursor = document.getElementById('cursor');
-
-function typeLoop() {
-  const fullText = phrases[i];
-
-  if (isDeleting) {
-    currentText = fullText.substring(0, j--);
-    delay = 40; // backspace speed
   } else {
-    currentText = fullText.substring(0, j++);
-    delay = 100; // typing speed
+    if (charIndex >= 0) {
+      display.textContent = current.slice(0, charIndex--);
+    } else {
+      typing = true;
+      roleIndex = (roleIndex + 1) % roles.length;
+    }
   }
-
-  typewriter.innerHTML = currentText;
-
-  if (!isDeleting && j > fullText.length) {
-    isDeleting = true;
-    delay = 1500; // pause after full phrase
-  } else if (isDeleting && j === 0) {
-    isDeleting = false;
-    i = (i + 1) % phrases.length;
-    delay = 300; // pause before typing next phrase
-  }
-
-  setTimeout(typeLoop, delay);
+  setTimeout(typewriterEffect, typing ? 70 : 30);
 }
-
-// Blinking cursor
-setInterval(() => {
-  cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
-}, 500);
-
-typeLoop();
+typewriterEffect();
 </script>
+</body>
+</html>
