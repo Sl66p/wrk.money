@@ -131,34 +131,32 @@ function copyToClipboard(text) {
 }
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  async function fetchLanyard() {
-    try {
-      const res = await fetch('https://api.lanyard.rest/v1/users/577300949044035584?ts=' + Date.now());
-      const data = await res.json();
-      if (!data.success) return;
+async function fetchLanyard() {
+  try {
+    const res = await fetch("https://api.lanyard.rest/v1/users/577300949044035584");
+    const data = await res.json();
+    if (!data.success) return;
 
-      const { discord_status, activities } = data.data;
-      const dot = document.getElementById('status-dot');
-      const text = document.getElementById('custom-status');
-      const map = {
-        online: 'bg-green-500',
-        dnd: 'bg-red-500',
-        idle: 'bg-yellow-500',
-        offline: 'bg-gray-500'
-      };
+    const { discord_status, activities } = data.data;
+    const dot = document.getElementById("status-dot");
+    const text = document.getElementById("custom-status");
 
-      if (dot) dot.className = `w-3 h-3 rounded-full ${map[discord_status] || 'bg-gray-500'}`;
+    const map = {
+      online: "bg-green-500",
+      dnd: "bg-red-500",
+      idle: "bg-yellow-500",
+      offline: "bg-gray-500"
+    };
 
-      const custom = activities.find(a => a.type === 4);
-      if (text) text.textContent = custom?.state || 'No status';
+    if (dot) dot.className = `w-3 h-3 rounded-full ${map[discord_status] || 'bg-gray-500'}`;
 
-      console.log("Custom status:", custom?.state); // Debug log
-    } catch (e) {
-      console.error('Lanyard error:', e);
-    }
+    const custom = activities.find(a => a.type === 4);
+    if (text) text.textContent = custom?.state || "No status";
+  } catch (e) {
+    console.error("Lanyard error:", e);
   }
-
+}
+document.addEventListener("DOMContentLoaded", () => {
   fetchLanyard();
   setInterval(fetchLanyard, 15000);
 });
