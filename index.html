@@ -22,18 +22,63 @@
     <p style="font-size:0.9rem;opacity:0.7;">Audio will begin playing</p>
   </div>
   <main class="min-h-screen text-white flex flex-col items-center justify-center p-4 relative">
-    <!-- Content restored and inserted here -->
+<main class="min-h-screen animated-gradient flex flex-col items-center justify-center p-4">
+    <div class="max-w-3xl w-full mx-auto flex flex-col gap-6 py-8">
+      <div class="text-center">
+        <div class="text-2xl md:text-3xl font-mono tracking-wider">
+          <span id="live-time">--:--</span>
+        </div>
+        <div class="text-sm text-zinc-400 mt-1">Monday, July 7, 2025</div>
+      </div>
+      <div class="glass rounded-lg p-6 glow">
+        <div class="flex items-center gap-5">
+          <div class="relative w-20 h-20 rounded-full overflow-hidden border-2 border-zinc-800 glow">
+            <img alt="Profile" src="./wrk_files/juice-wrld-gif-2.png" class="w-full h-full object-cover" />
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold tracking-wide">wrk</h1>
+            <p class="text-zinc-400 text-sm mt-1"><span id="typewriter"></span><span id="cursor">|</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Card -->
+      <div class="glass rounded-lg p-5 glow">
+        <h3 class="text-sm font-medium mb-2">Discord Status</h3>
+        <iframe src="https://lanyard.cnrad.dev/api/577300949044035584" style="border:none;width:100%;height:150px;background:#18181b;border-radius:0.5rem;" loading="lazy"></iframe>
+      </div>
+
+      <!-- Music Player -->
+      <div class="glass rounded-lg p-5 glow">
+        <h3 class="text-white font-bold text-lg mb-2">🎵 Currently Playing</h3>
+        <p class="mb-2 text-white">In da party - Smokedope2016</p>
+        <audio autoplay loop controls preload="auto" style="width: 100%; filter: invert(1) brightness(0.8) contrast(1.2); border-radius: 10px;">
+          <source src="wrk_files/in-da-party.mp3" type="audio/mp3" />
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+
+      <!-- Socials + Payments will go here -->
+
+      <div class="text-center text-zinc-500 text-sm mt-4">999 wrld.</div>
+      <div class="text-center text-zinc-600 text-xs mt-8">...and for my beautiful wife Keona, i'll love you forever. <3</div>
+    </div>
+  </main>
   </main>
   <script>
-    function enterSite() {
-      const splash = document.getElementById('splash');
-      splash.style.display = 'none';
-      document.body.style.overflow = 'auto';
-      const audio = document.querySelector('audio');
-      if (audio && audio.paused) {
-        audio.play().catch(err => console.log("Autoplay blocked:", err));
-      }
+   function enterSite() {
+    const splash = document.getElementById('splash');
+    splash.style.display = 'none';
+    document.body.style.overflow = 'auto';
+
+    // ✅ Add this if it’s missing:
+    document.getElementById('main-content').style.display = 'block';
+
+    const audio = document.querySelector('audio');
+    if (audio) {
+      audio.play().catch(err => console.log("Autoplay blocked:", err));
     }
+  }
   </script>
   <script>
     function updateTime() {
