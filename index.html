@@ -119,7 +119,13 @@ function copyToClipboard(text) {
     document.body.removeChild(textarea);
   });
 }
-</script></body></html>
+</script><script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const audio = document.querySelector('audio');
+    if (audio) audio.volume = 0.4;
+  });
+</script>
+</body></html>
 <script>
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text).then(() => {
