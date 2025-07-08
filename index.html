@@ -12,7 +12,7 @@
   <meta property="og:image" content="https://wrk.money/wrk_files/avatar.png">
   <link rel="icon" href="/wrk_files/999circle.png" type="image/png">
   <link rel="stylesheet" href="./wrk_files/b71a989fe353739b.css">
-  <script src="./wrk_files/webpack-23a8c4cf1ae48564.js.download" async></script>
+  <script src="./wrk_files/webpack-23a8c4cf1ae48564.js" async></script>
   <meta name="next-size-adjust" content="">
   <meta name="generator" content="v0.dev">
 </head>
@@ -21,6 +21,7 @@
     <h1 style="font-size:2rem;margin-bottom:0.5rem;">Click / Tap Anywhere to Enter</h1>
     <p style="font-size:0.9rem;opacity:0.7;">Audio will begin playing</p>
   </div>
+<div id="main-content" style="display: none;">
   <main class="min-h-screen text-white flex flex-col items-center justify-center p-4 relative">
 <main class="min-h-screen animated-gradient flex flex-col items-center justify-center p-4">
     <div class="max-w-3xl w-full mx-auto flex flex-col gap-6 py-8">
@@ -59,9 +60,38 @@
       </div>
 
       <!-- Socials + Payments will go here -->
+              <!-- Socials -->
+        <div class="glass rounded-lg p-5 glow" style="opacity: 1; transform: none;">
+          <h3 class="text-sm font-medium mb-3">Socials</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <a href="https://discord.gg/yourlink" target="_blank" class="social-button">Discord</a>
+            <a href="https://steamcommunity.com/id/yourprofile" target="_blank" class="social-button">Steam</a>
+            <a href="https://x.com/yourprofile" target="_blank" class="social-button">X</a>
+            <a href="https://instagram.com/yourprofile" target="_blank" class="social-button">Instagram</a>
+          </div>
+        </div>
+
+        <!-- Payments -->
+        <div class="glass rounded-lg p-5 glow" style="opacity: 1; transform: none;">
+          <h3 class="text-sm font-medium mb-3">Payments</h3>
+          <div class="grid grid-cols-3 gap-4">
+            <div class="payment-button" onclick="navigator.clipboard.writeText('youremail@example.com')">
+              <img src="wrk_files/paypal.svg" alt="PayPal" class="w-6 h-6 mb-1" />
+              <span>PayPal</span>
+            </div>
+            <div class="payment-button" onclick="navigator.clipboard.writeText('$cashapptag')">
+              <img src="wrk_files/cashapp.svg" alt="CashApp" class="w-6 h-6 mb-1" />
+              <span>Cashapp</span>
+            </div>
+            <div class="payment-button" onclick="navigator.clipboard.writeText('0xYourETHAddress')">
+              <img src="wrk_files/eth.svg" alt="ETH" class="w-6 h-6 mb-1" />
+              <span>ETH</span>
+            </div>
+          </div>
 
       <div class="text-center text-zinc-500 text-sm mt-4">999 wrld.</div>
       <div class="text-center text-zinc-600 text-xs mt-8">...and for my beautiful wife Keona, i'll love you forever. <3</div>
+    </div>
     </div>
   </main>
   </main>
