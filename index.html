@@ -240,19 +240,40 @@
     });
   </script>
   <script><span id="live-time">--:--</span></script>
-  <script>
-    function enterSite() {
-      const splash = document.getElementById('splash');
-      splash.style.display = 'none';
-      document.body.style.overflow = 'auto';
+<script>
+async function enterSite() {
+  const splash = document.getElementById('splash');
+  splash.style.display = 'none';
+  document.body.style.overflow = 'auto';
 
-      const audio = document.querySelector('audio');
-      if (audio) {
-        if (audio.paused) {
-          audio.play().catch(err => console.log("Autoplay blocked:", err));
-        }
-      }
+  const audio = document.querySelector('audio');
+  if (audio) {
+    if (audio.paused) {
+      audio.play().catch(err => console.log("Autoplay blocked:", err));
     }
+  }
+
+  // CountAPI: Increment and get the updated count on site entry
+  const viewCountElement = document.getElementById('view-count');
+  const namespace = 'wrkssite'; // Ensure this matches your chosen namespace
+  const key = '99910162005'; // Ensure this matches your chosen key
+
+  try {
+    await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
+    const response = await fetch(`https://api.countapi.xyz/get/${namespace}/${key}`);
+    const data = await response.json();
+    if (viewCountElement) {
+      viewCountElement.textContent = data.value;
+    }
+  } catch(e) {
+    console.error('Error updating view count on site entry:', e);
+    if (viewCountElement) {
+      viewCountElement.textContent = 'N/A';
+    }
+  }
+}
+</script>
+<script>
     function updateTime() {
       const clock = document.querySelector('#live-time');
       if (clock) {
@@ -308,19 +329,14 @@
     });
   </script>
 <script>
-// Global View Counter Logic using CountAPI
+// Global View Counter Logic using CountAPI (Initial Load)
 document.addEventListener('DOMContentLoaded', async () => {
   const viewCountElement = document.getElementById('view-count');
-  // IMPORTANT: Change 'wrkssite' and '99910162005' to something unique for your website if you haven't already.
-  // These values act as your unique counter identifiers on CountAPI.
-  const namespace = 'wrkssite'; // Your unique identifier for your website
-  const key = '99910162005'; // Your unique identifier for this specific counter
+  const namespace = 'wrkssite'; // Ensure this matches your chosen namespace
+  const key = '99910162005'; // Ensure this matches your chosen key
 
   try {
-    // Increment the counter
-    await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
-
-    // Get the updated count
+    // Only get the count on DOMContentLoaded; the 'hit' happens when enterSite() is called
     const response = await fetch(`https://api.countapi.xyz/get/${namespace}/${key}`);
     const data = await response.json();
 
@@ -328,9 +344,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       viewCountElement.textContent = data.value;
     }
   } catch(e) {
-    console.error('Error fetching view count:', e);
+    console.error('Error fetching initial view count:', e);
     if (viewCountElement) {
-      viewCountElement.textContent = 'N/A'; // Display N/A on error
+      viewCountElement.textContent = 'N/A';
     }
   }
 });
