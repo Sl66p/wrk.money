@@ -56,23 +56,25 @@
         <div class="text-2xl md:text-3xl font-mono tracking-wider"><span id="live-time">--:--</span></div>
         <div class="text-sm text-zinc-400 mt-1">Monday, July 7, 2025</div>
       </div>
-      <div class="glass rounded-lg p-6 glow" style="opacity: 1; transform: none;">
+      <div class="glass rounded-lg p-6 glow relative" style="opacity: 1; transform: none;">
         <div class="flex items-center gap-5">
           <div class="relative w-20 h-20 rounded-full overflow-hidden border-2 border-zinc-800 glow"><img alt="Profile"
               class="w-full h-full object-cover" src="./wrk_files/giphy.gif" /></div>
-          <div class="flex flex-col relative">
-  <h1 class="text-2xl font-bold tracking-wide">wrk</h1>
-  <p class="text-zinc-400 text-sm mt-1">
-    <span id="typewriter"></span><span id="cursor">|</span>
-  </p>
-  <div class="absolute bottom-0 right-0 flex items-center text-zinc-400 text-xs">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-    </svg>
-    <span id="view-count">0</span> views
-  </div>
-</div>
+          <div class="flex flex-col">
+            <h1 class="text-2xl font-bold tracking-wide">wrk</h1>
+            <p class="text-zinc-400 text-sm mt-1">
+              <span id="typewriter"></span><span id="cursor">|</span>
+            </p>
+          </div>
+        </div>
+        <div class="absolute bottom-0 right-0 flex items-center text-zinc-400 text-xs p-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-4 h-4 mr-1">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          </svg>
+          <span id="view-count">0</span> views
         </div>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -305,14 +307,14 @@
       if (audio) audio.volume = 0.4;
     });
   </script>
-  <script>
+<script>
 // Global View Counter Logic using CountAPI
 document.addEventListener('DOMContentLoaded', async () => {
   const viewCountElement = document.getElementById('view-count');
-  // IMPORTANT: Change 'your_unique_namespace' and 'your_unique_key' to something unique for your website.
-  // For example, 'wrk.money' and 'profile_views'.
-  const namespace = 'wrkssite'; // Replace with a unique identifier for your website
-  const key = '99910162005'; // Replace with a unique identifier for this specific counter
+  // IMPORTANT: Change 'wrkssite' and '99910162005' to something unique for your website if you haven't already.
+  // These values act as your unique counter identifiers on CountAPI.
+  const namespace = 'wrkssite'; // Your unique identifier for your website
+  const key = '99910162005'; // Your unique identifier for this specific counter
 
   try {
     // Increment the counter
@@ -325,7 +327,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (viewCountElement) {
       viewCountElement.textContent = data.value;
     }
-  } catch (e) {
+  } catch(e) {
     console.error('Error fetching view count:', e);
     if (viewCountElement) {
       viewCountElement.textContent = 'N/A'; // Display N/A on error
