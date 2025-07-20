@@ -33,11 +33,15 @@
     <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <style>
+   <style>
     body {
-      background-color: #331163 !important; /* Dark Purple */
+      background-color: #331163 !important; /* Dark Purple base color */
     }
-    /* You might want to adjust the 'glass' elements for better contrast/transparency */
+    /* Make the animated gradient semi-transparent and blend with the body background */
+    .animated-gradient {
+      background-color: rgba(0, 0, 0, 0.5) !important; /* Semi-transparent black overlay */
+      background-blend-mode: overlay; /* Blends the gradient with the background-color */
+    }
     .glass {
       background-color: rgba(0, 0, 0, 0.4) !important; /* Example: More transparent black */
       backdrop-filter: blur(10px); /* Keep the blur effect */
