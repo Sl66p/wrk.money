@@ -44,6 +44,7 @@
 </head>
 
 <body class="__variable_d65c78 __variable_4bc053 bg-black text-white font-sans">
+<div id="cursor-trail"></div>
   <!-- <video id="background-video" autoplay loop muted playsinline style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1;">
     <source src="./wrk_files/juice-export.mp4" type="video/mp4">
   </video> -->
@@ -432,6 +433,87 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 2000);
     }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const trailContainer = document.getElementById('cursor-trail');
+    const trailDots = [];
+    const maxDots = 15; // Number of trail dots
+    let mouseX = 0;
+    let mouseY = 0;
+    
+    // Create trail dots
+    for (let i = 0; i < maxDots; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'cursor-dot';
+        dot.style.opacity = (maxDots - i) / maxDots; // Fade effect
+        dot.style.transform = `scale(${(maxDots - i) / maxDots})`;
+        trailContainer.appendChild(dot);
+        trailDots.push({
+            element: dot,
+            x: 0,
+            y: 0,
+            targetX: 0,
+            targetY: 0
+        });
+    }
+    
+    // Track mouse movement
+    document.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        
+        // Update main cursor position
+        if (document.body.style) {
+            document.body.style.setProperty('--cursor-x', mouseX + 'px');
+            document.body.style.setProperty('--cursor-y', mouseY + 'px');
+        }
+    });
+    
+    // Animate trail
+    function animateTrail() {
+        // Update first dot to follow mouse directly
+        trailDots[0].targetX = mouseX;
+        trailDots[0].targetY = mouseY;
+        
+        // Each subsequent dot follows the previous one with delay
+        for (let i = 1; i < trailDots.length; i++) {
+            const prevDot = trailDots[i - 1];
+            const currentDot = trailDots[i];
+            
+            currentDot.targetX = prevDot.x;
+            currentDot.targetY = prevDot.y;
+        }
+        
+        // Smooth movement for all dots
+        trailDots.forEach((dot, index) => {
+            const speed = 0.15 - (index * 0.005); // Slower for trailing dots
+            dot.x += (dot.targetX - dot.x) * speed;
+            dot.y += (dot.targetY - dot.y) * speed;
+            
+            dot.element.style.left = (dot.x - 4) + 'px';
+            dot.element.style.top = (dot.y - 4) + 'px';
+        });
+        
+        requestAnimationFrame(animateTrail);
+    }
+    
+    // Start animation
+    animateTrail();
+    
+    // Update main cursor position with CSS variables
+    const style = document.createElement('style');
+    style.textContent = `
+        @media (hover: hover) {
+            body::after {
+                left: var(--cursor-x, 0px);
+                top: var(--cursor-y, 0px);
+                transform: translate(-50%, -50%);
+            }
+        }
+    `;
+    document.head.appendChild(style);
 });
 </script>
 </body>
