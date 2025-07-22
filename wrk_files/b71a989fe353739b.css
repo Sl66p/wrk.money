@@ -17,13 +17,3 @@
   height: 100%;
   object-fit: cover;
 }
-/* Override any conflicting background styles */
-body, body.bg-black {
-  background: transparent !important;
-}
-
-main {
-  background: transparent !important;
-  position: relative;
-  z-index: 1;
-}
