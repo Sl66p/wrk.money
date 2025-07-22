@@ -378,35 +378,40 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Try both selectors to see which one exists
-    const video1 = document.querySelector('.video-background video');
-    const video2 = document.querySelector('#background-video');
-    const video3 = document.querySelector('video');
-    
-    console.log('Looking for video elements...');
-    console.log('video-background video:', video1);
-    console.log('background-video ID:', video2);
-    console.log('any video element:', video3);
-    
-    const video = video1 || video2 || video3;
+    const video = document.querySelector('#background-video');
     
     if (video) {
         console.log('Video element found:', video);
+        console.log('Video src:', video.querySelector('source').src);
         
-        video.addEventListener('loadstart', () => console.log('Video loading started'));
-        video.addEventListener('canplay', () => console.log('Video can play'));
-        video.addEventListener('error', (e) => console.log('Video error:', e));
-        video.addEventListener('loadeddata', () => console.log('Video data loaded'));
-        
-        // Force play
-        video.play().then(() => {
-            console.log('Video playing successfully');
-        }).catch(err => {
-            console.log('Video play failed:', err);
+        video.addEventListener('loadstart', () => console.log('✅ Video loading started'));
+        video.addEventListener('loadedmetadata', () => console.log('✅ Video metadata loaded'));
+        video.addEventListener('loadeddata', () => console.log('✅ Video data loaded'));
+        video.addEventListener('canplay', () => console.log('✅ Video can play'));
+        video.addEventListener('canplaythrough', () => console.log('✅ Video can play through'));
+        video.addEventListener('playing', () => console.log('✅ Video is playing'));
+        video.addEventListener('error', (e) => {
+            console.log('❌ Video error:', e);
+            console.log('❌ Video error details:', video.error);
         });
-    } else {
-        console.log('No video element found at all');
-        console.log('All video elements on page:', document.querySelectorAll('video'));
+        video.addEventListener('stalled', () => console.log('⚠️ Video stalled'));
+        video.addEventListener('waiting', () => console.log('⚠️ Video waiting'));
+        
+        // Check if video can play
+        setTimeout(() => {
+            console.log('Video readyState:', video.readyState);
+            console.log('Video networkState:', video.networkState);
+            console.log('Video paused:', video.paused);
+            console.log('Video ended:', video.ended);
+            
+            if (video.readyState >= 2) {
+                video.play().then(() => {
+                    console.log('✅ Video playing successfully');
+                }).catch(err => {
+                    console.log('❌ Video play failed:', err);
+                });
+            }
+        }, 2000);
     }
 });
 </script>
