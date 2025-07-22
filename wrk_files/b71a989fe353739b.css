@@ -21,3 +21,65 @@ body {
   background-color: #000000 !important;
   background: #000000 !important;
 }
+.badge-container {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.badge {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.badge-image {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.badge:hover .badge-image {
+  transform: scale(1.1);
+}
+
+.badge::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: none;
+  z-index: 1000;
+  margin-bottom: 5px;
+}
+
+.badge::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 1000;
+}
+
+.badge:hover::after,
+.badge:hover::before {
+  opacity: 1;
+  visibility: visible;
+}
