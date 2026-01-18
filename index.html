@@ -29,6 +29,7 @@
   <title>Wrk's Desk. 💻</title>
   <meta content="Personal website for wrk" name="description" />
   <meta content="v0.dev" name="generator" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.12.0/tsparticles.bundle.min.js"></script>
   <script nomodule="" src="./wrk_files/polyfills-42372ed130431b0a.js.download"></script>
     <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -44,6 +45,8 @@
 </head>
 
 <body class="__variable_d65c78 __variable_4bc053 bg-black text-white font-sans">
+  <body class="__variable_d65c78 __variable_4bc053 bg-black text-white font-sans">
+  <div id="tsparticles" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></div>
 <div id="cursor-trail"></div>
   <!-- <video id="background-video" autoplay loop muted playsinline style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1;">
     <source src="./wrk_files/juice-export.mp4" type="video/mp4">
@@ -597,5 +600,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fetchLanyard();
     setInterval(fetchLanyard, 15000);
+  });
+</script>
+<script>
+  tsParticles.load("tsparticles", {
+    fpsLimit: 60,
+    particles: {
+      number: { value: 80, density: { enable: true, area: 800 } },
+      color: { value: "#ffffff" },
+      links: {
+        enable: true,
+        distance: 150,
+        color: "#ffffff",
+        opacity: 0.2,
+        width: 1,
+      },
+      move: {
+        enable: true,
+        speed: 1.5,
+        direction: "none",
+        outModes: { default: "bounce" },
+      },
+      size: { value: { min: 1, max: 2 } },
+      opacity: { value: 0.3 },
+    },
+    interactivity: {
+      events: { onHover: { enable: true, mode: "grab" } },
+      modes: { grab: { distance: 140, links: { opacity: 0.5 } } },
+    },
+    detectRetina: true,
   });
 </script>
