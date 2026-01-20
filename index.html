@@ -107,6 +107,9 @@
       </div>
     </div>
   </div>
+  <p class="text-[10px] text-zinc-500 uppercase tracking-tighter -mt-1 mb-1">
+    AKA wrk, sleep, slept, up4i, upevil and indicas
+  </p>
   <p class="text-zinc-400 text-sm mt-1">
     <span id="typewriter"></span><span id="cursor">|</span>
   </p>
@@ -485,13 +488,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update main cursor position with CSS variables
     const style = document.createElement('style');
     style.textContent = `
-        @media (hover: hover) {
-            body::after {
-                left: var(--cursor-x, 0px);
-                top: var(--cursor-y, 0px);
-                transform: translate(-50%, -50%);
-            }
+      @media (max-width: 768px) {
+        #cursor-trail, .cursor-dot {
+        display: none !important;
+      }
+        body {
+          cursor: default !important;
         }
+    }
     `;
     document.head.appendChild(style);
 });
@@ -509,52 +513,40 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 </script>
 <script>
-  async function fetchLanyard() {
-    try {
-      const res = await fetch('https://api.lanyard.rest/v1/users/577300949044035584');
-      const data = await res.json();
-      if (!data.success) return;
+async function fetchLanyard() {
+  try {
+    const res = await fetch('https://api.lanyard.rest/v1/users/577300949044035584');
+    const data = await res.json();
+    if (!data || !data.success) return;
 
-      const { discord_status, activities } = data.data;
-      const dot = document.getElementById('status-dot');
-      const text = document.getElementById('custom-status');
-      
-      // Update Status Dot
-      const map = { online: 'bg-green-500', dnd: 'bg-red-500', idle: 'bg-yellow-500', offline: 'bg-gray-500' };
-      if (dot) dot.className = `w-3 h-3 rounded-full ${map[discord_status] || 'bg-gray-500'}`;
+    const { discord_status, activities } = data.data;
+    const dot = document.getElementById('status-dot');
+    const text = document.getElementById('custom-status');
+    const map = { online: 'bg-green-500', dnd: 'bg-red-500', idle: 'bg-yellow-500', offline: 'bg-gray-500' };
 
-      // Find Custom Status (Type 4)
+    if (dot) dot.className = `w-3 h-3 rounded-full ${map[discord_status] || 'bg-gray-500'}`;
+
+    if (text) {
       const custom = activities.find(a => a.type === 4);
-      
-      if (text) {
-        let statusDisplay = "";
+      let statusDisplay = "";
 
-        if (custom) {
-          // 1. Check for Emoji (Custom or Unicode)
-          if (custom.emoji) {
-            if (custom.emoji.id) {
-              // It's a custom Discord emoji - we create an img tag
-              const ext = custom.emoji.animated ? 'gif' : 'png';
-              statusDisplay += `<img src="https://cdn.discordapp.com/emojis/${custom.emoji.id}.${ext}" class="inline-block w-4 h-4 mr-1" style="vertical-align: middle;"> `;
-            } else if (custom.emoji.name) {
-              // It's a standard unicode emoji
-              statusDisplay += custom.emoji.name + " ";
-            }
-          }
-
-          // 2. Check for Text State
-          if (custom.state) {
-            statusDisplay += custom.state;
+      if (custom) {
+        if (custom.emoji) {
+          if (custom.emoji.id) {
+            const ext = custom.emoji.animated ? 'gif' : 'png';
+            statusDisplay += `<img src="https://cdn.discordapp.com/emojis/${custom.emoji.id}.${ext}" class="inline-block w-4 h-4 mr-1" style="vertical-align: middle;"> `;
+          } else if (custom.emoji.name) {
+            statusDisplay += custom.emoji.name + " ";
           }
         }
-
-        // Apply to element (using innerHTML to support emoji images)
-        text.innerHTML = statusDisplay || 'No status';
+        if (custom.state) statusDisplay += custom.state;
       }
-    } catch (e) {
-      console.error('Lanyard error:', e);
+      text.innerHTML = statusDisplay || 'No status';
     }
+  } catch (e) {
+    console.error('Lanyard error:', e);
   }
+}
 
   fetchLanyard();
   setInterval(fetchLanyard, 15000);
