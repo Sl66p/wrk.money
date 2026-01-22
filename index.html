@@ -108,7 +108,7 @@
     </div>
   </div>
   <p class="text-[6px] text-zinc-500 uppercase tracking-tighter -mt-1 mb-1">
-    aka wrk, sleep, slept, up4i, upevil and indicas
+    aka wrk, sleep, slept, up4i, and indicas
   </p>
   <p class="text-zinc-400 text-sm mt-1">
     <span id="typewriter"></span><span id="cursor">|</span>
@@ -513,43 +513,56 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 </script>
 <script>
-async function fetchLanyard() {
-  try {
-    const res = await fetch('https://api.lanyard.rest/v1/users/577300949044035584');
-    const data = await res.json();
-    if (!data || !data.success) return;
+  document.addEventListener('DOMContentLoaded', () => {
+    async function fetchLanyard() {
+      try {
+        const res = await fetch('https://api.lanyard.rest/v1/users/577300949044035584');
+        const data = await res.json();
+        if (!data || !data.success) return;
 
-    const { discord_status, activities } = data.data;
-    const dot = document.getElementById('status-dot');
-    const text = document.getElementById('custom-status');
-    const map = { online: 'bg-green-500', dnd: 'bg-red-500', idle: 'bg-yellow-500', offline: 'bg-gray-500' };
+        const { discord_status, activities } = data.data;
+        const dot = document.getElementById('status-dot');
+        const text = document.getElementById('custom-status');
+        const map = { online: 'bg-green-500', dnd: 'bg-red-500', idle: 'bg-yellow-500', offline: 'bg-gray-500' };
 
-    if (dot) dot.className = `w-3 h-3 rounded-full ${map[discord_status] || 'bg-gray-500'}`;
+        // Update the Online/DND/Idle dot
+        if (dot) dot.className = `w-3 h-3 rounded-full ${map[discord_status] || 'bg-gray-500'}`;
 
-    if (text) {
-      const custom = activities.find(a => a.type === 4);
-      let statusDisplay = "";
+        if (text) {
+          // Find the "Custom Status" activity (Type 4)
+          const custom = activities.find(a => a.type === 4);
+          let statusDisplay = "";
 
-      if (custom) {
-        if (custom.emoji) {
-          if (custom.emoji.id) {
-            const ext = custom.emoji.animated ? 'gif' : 'png';
-            statusDisplay += `<img src="https://cdn.discordapp.com/emojis/${custom.emoji.id}.${ext}" class="inline-block w-4 h-4 mr-1" style="vertical-align: middle;"> `;
-          } else if (custom.emoji.name) {
-            statusDisplay += custom.emoji.name + " ";
+          if (custom) {
+            // 1. Handle Emojis
+            if (custom.emoji) {
+              if (custom.emoji.id) {
+                // This is a custom image emoji (like your Reaper)
+                const ext = custom.emoji.animated ? 'gif' : 'png';
+                statusDisplay += `<img src="https://cdn.discordapp.com/emojis/${custom.emoji.id}.${ext}" class="inline-block w-4 h-4 mr-1" style="vertical-align: middle;"> `;
+              } else if (custom.emoji.name) {
+                // This is a standard unicode emoji (like 💀)
+                statusDisplay += custom.emoji.name + " ";
+              }
+            }
+            
+            // 2. Handle Text
+            if (custom.state) {
+              statusDisplay += custom.state;
+            }
           }
-        }
-        if (custom.state) statusDisplay += custom.state;
-      }
-      text.innerHTML = statusDisplay || 'No status';
-    }
-  } catch (e) {
-    console.error('Lanyard error:', e);
-  }
-}
 
-  fetchLanyard();
-  setInterval(fetchLanyard, 15000);
+          // Use innerHTML so the Reaper image actually renders
+          text.innerHTML = statusDisplay || 'No status';
+        }
+      } catch (e) {
+        console.error('Lanyard error:', e);
+      }
+    }
+
+    fetchLanyard();
+    setInterval(fetchLanyard, 15000); // Refreshes every 15 seconds
+  });
 </script>
 <script>
   const phrases = [
@@ -557,6 +570,7 @@ async function fetchLanyard() {
     "Physical Security Developer",
     "Founder @ /wrks",
     "@ogkush on telegram <3",
+    "999 forever."
     "I love my beautiful wife!!!!"
   ];
 
@@ -600,38 +614,6 @@ async function fetchLanyard() {
   }, 500);
 
   typeLoop();
-</script>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    async function fetchLanyard() {
-      try {
-        const res = await fetch('https://api.lanyard.rest/v1/users/577300949044035584');
-        const data = await res.json();
-        if (!data.success) return;
-
-        const { discord_status, activities } = data.data;
-        const dot = document.getElementById('status-dot');
-        const text = document.getElementById('custom-status');
-        const map = {
-          online: 'bg-green-500',
-          dnd: 'bg-red-500',
-          idle: 'bg-yellow-500',
-          offline: 'bg-gray-500'
-        };
-
-        if (dot) dot.className = `w-3 h-3 rounded-full ${map[discord_status] || 'bg-gray-500'}`;
-        if (text) {
-          const custom = activities.find(a => a.type === 4);
-          text.textContent = custom?.state || 'No status';
-        }
-      } catch (e) {
-        console.error('Lanyard error:', e);
-      }
-    }
-
-    fetchLanyard();
-    setInterval(fetchLanyard, 15000);
-  });
 </script>
 <script>
   tsParticles.load("tsparticles", {
