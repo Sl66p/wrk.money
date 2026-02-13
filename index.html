@@ -525,17 +525,34 @@ document.addEventListener('DOMContentLoaded', function() {
     document.head.appendChild(style);
 });
 </script>
+    <div id="copy-toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full text-sm font-medium opacity-0 pointer-events-none transition-all duration-300 transform translate-y-2 z-50">
+  Address Copied!
+</div>
 </body>
 
 </html>
 <script>
-  function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Copied: ' + text);
-    }).catch(err => {
-      console.error('Copy failed', err);
-    });
-  }
+function copyToClipboard(text) {
+  // 1. Copy to clipboard
+  navigator.clipboard.writeText(text).then(() => {
+    
+    // 2. Get the toast element
+    const toast = document.getElementById('copy-toast');
+
+    // 3. Show the toast
+    toast.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
+    toast.classList.add('opacity-100', 'translate-y-0');
+
+    // 4. Hide it after 2.5 seconds
+    setTimeout(() => {
+      toast.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
+      toast.classList.remove('opacity-100', 'translate-y-0');
+    }, 2500);
+
+  }).catch(err => {
+    console.error('Failed to copy: ', err);
+  });
+}
 </script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
