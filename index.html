@@ -249,7 +249,7 @@
     </button>
 
     <button class="flex flex-col items-center justify-center p-2 rounded-lg glass glass-hover transition-all duration-300 w-full" 
-            onclick="copyToClipboard('hatedisugly.ton')">
+            onclick="copyToClipboard('UQCkkR5ovr_WMXrPLg1yCeSyhGV_wSrnTCL5E7ACa0DGtO6q')">
       <div class="flex items-center justify-center w-10 h-10 rounded-full bg-zinc-800/80 mb-2 glow overflow-hidden">
         <svg fill="currentColor" height="20" viewbox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
           <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"></path>
@@ -347,37 +347,6 @@ async function enterSite() {
     }
     setInterval(updateTime, 1000);
     updateTime();
-  </script>
-  <script>
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert('Copied: ' + text);
-      }).catch(err => {
-        console.error('Copy failed', err);
-      });
-    }
-  </script>
-  <script>
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert('Copied: ' + text);
-      }).catch(err => {
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-        try {
-          document.execCommand('copy');
-          alert('Copied: ' + text);
-        } catch (err) {
-          alert('Failed to copy.');
-        }
-        document.body.removeChild(textarea);
-      });
-    }
   </script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
