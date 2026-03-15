@@ -74,12 +74,39 @@
 
         .suggestion-item:hover, .suggestion-item.selected {
             background: rgba(255, 255, 255, 0.1); color: #fff;
-            padding-left: 30px; /* Subtle slide effect on hover */
+            padding-left: 30px;
         }
 
         footer { position: absolute; bottom: 20px; width: 100%; text-align: center; z-index: 10; pointer-events: auto; }
         .footer-link { color: #888 !important; text-decoration: none; letter-spacing: 1px; font-size: 0.9rem; opacity: 0.5; transition: all 0.3s ease; cursor: pointer; }
         .footer-link:hover { opacity: 1; color: #ffffff !important; text-shadow: 0 0 8px rgba(255, 255, 255, 0.3); }
+
+        /* Command Shortcuts UI */
+        #shortcuts-toggle {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(20,20,20,0.5); backdrop-filter: blur(5px);
+            color: #888; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 100; transition: 0.3s; pointer-events: auto;
+            font-weight: bold;
+        }
+        #shortcuts-toggle:hover { color: #fff; border-color: #fff; }
+
+        #shortcuts-menu {
+            position: fixed; bottom: 65px; right: 20px;
+            width: 240px; background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 20px; z-index: 99;
+            transform: translateY(20px); opacity: 0; pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #shortcuts-menu.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        #shortcuts-menu h3 { margin: 0 0 15px 0; font-size: 0.8rem; letter-spacing: 2px; color: #fff; opacity: 0.6; text-transform: uppercase; }
+        #shortcuts-menu ul { list-style: none; padding: 0; margin: 0; }
+        #shortcuts-menu li { margin-bottom: 10px; font-size: 0.85rem; color: #bbb; display: flex; align-items: center; }
+        #shortcuts-menu span { color: #fff; font-family: 'Courier New', monospace; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; margin-right: 12px; min-width: 30px; text-align: center; }
+        
         form button { display: none; }
     </style>
 </head>
@@ -98,6 +125,20 @@
             </form>
         </div>
 
+        <div id="shortcuts-toggle" onclick="toggleShortcuts()">?</div>
+        <div id="shortcuts-menu">
+            <h3>Quick Commands</h3>
+            <ul>
+                <li><span>?y</span> YouTube</li>
+                <li><span>?s</span> SpaceMail</li>
+                <li><span>?g</span> Gmail</li>
+                <li><span>?c</span> Coinbase</li>
+                <li><span>?r</span> Reddit</li>
+                <li><span>?gh</span> GitHub</li>
+                <li><span>?ai</span> Gemini</li>
+            </ul>
+        </div>
+
         <footer>
             <a href="https://wrk.money" target="_blank" class="footer-link">999 wrld.</a>
         </footer>
@@ -105,24 +146,17 @@
 
     <script>
         // Clock Logic
-        // Clock Logic - Reliable Local Time
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
             let minutes = now.getMinutes();
             let seconds = now.getSeconds();
             const ampm = hours >= 12 ? 'PM' : 'AM';
-
-            // Convert to 12-hour format
             hours = hours % 12;
-            hours = hours ? hours : 12; // the hour '0' should be '12'
-            
-            // Add leading zeros to minutes and seconds
+            hours = hours ? hours : 12;
             minutes = minutes < 10 ? '0' + minutes : minutes;
             seconds = seconds < 10 ? '0' + seconds : seconds;
-
-            const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
-            document.getElementById('clock').textContent = timeString;
+            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
         }
         setInterval(updateClock, 1000);
         updateClock();
@@ -133,7 +167,6 @@
             "Clutter Free, No Ads EVER, and Free to Use.",
             "This site uses ZERO trackers and is open source."
         ];
-
         const randomPhrases = [
             "All the info is out there, you just need to find it!",
             "Bored? Check out FMHY!",
@@ -161,17 +194,13 @@
             let currentPhrase = !isIntroFinished ? introPhrases[currentPhraseIndex] : randomPhrases[currentPhraseIndex];
             typewriterElement.textContent = currentPhrase.substring(0, isDeleting ? charIndex - 1 : charIndex + 1);
             charIndex = isDeleting ? charIndex - 1 : charIndex + 1;
-
             let typeSpeed = isDeleting ? 50 : 100;
             if (!isDeleting && charIndex === currentPhrase.length) { typeSpeed = 2000; isDeleting = true; }
             else if (isDeleting && charIndex === 0) {
                 isDeleting = false;
                 if (!isIntroFinished) {
                     currentPhraseIndex++;
-                    if (currentPhraseIndex >= introPhrases.length) {
-                        isIntroFinished = true;
-                        currentPhraseIndex = Math.floor(Math.random() * randomPhrases.length);
-                    }
+                    if (currentPhraseIndex >= introPhrases.length) { isIntroFinished = true; currentPhraseIndex = Math.floor(Math.random() * randomPhrases.length); }
                 } else {
                     let nextIndex;
                     do { nextIndex = Math.floor(Math.random() * randomPhrases.length); } while (nextIndex === lastRandomIndex);
@@ -183,15 +212,49 @@
         }
         type();
 
-        // Autosuggestions Engine
+        // Search Shortcuts & Redirects
+        const shortcutMap = {
+            '?y': 'https://www.youtube.com',
+            '?s': 'https://spacemail.com',
+            '?g': 'https://mail.google.com',
+            '?c': 'https://www.coinbase.com',
+            '?r': 'https://www.reddit.com',
+            '?gh': 'https://github.com',
+            '?ai': 'https://gemini.google.com'
+        };
+
+        const searchForm = document.getElementById('search-form');
         const input = document.getElementById('search-input');
         const suggBox = document.getElementById('suggestions');
         let selectedIndex = -1;
 
+        searchForm.addEventListener('submit', function(e) {
+            const query = input.value.trim().toLowerCase();
+            if (query.startsWith('?')) {
+                if (shortcutMap[query]) {
+                    e.preventDefault();
+                    window.location.href = shortcutMap[query];
+                }
+            }
+        });
+
+        // Toggle Shortcuts UI
+        function toggleShortcuts() {
+            document.getElementById('shortcuts-menu').classList.toggle('active');
+        }
+
+        // Keyboard Listener (Press '/' for shortcuts)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && document.activeElement !== input) {
+                e.preventDefault();
+                toggleShortcuts();
+            }
+        });
+
+        // Autosuggestions Engine
         input.addEventListener('input', () => {
             const q = input.value;
-            if (q.length < 2) { suggBox.style.display = 'none'; return; }
-
+            if (q.length < 2 || q.startsWith('?')) { suggBox.style.display = 'none'; return; }
             const script = document.createElement('script');
             script.src = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}&callback=showSuggestions`;
             document.body.appendChild(script);
@@ -201,15 +264,13 @@
         window.showSuggestions = (data) => {
             const results = data[1].slice(0, 4); 
             if (results.length === 0) { suggBox.style.display = 'none'; return; }
-            
             suggBox.innerHTML = results.map(s => `<div class="suggestion-item">${s}</div>`).join('');
             suggBox.style.display = 'block';
             selectedIndex = -1;
-
             document.querySelectorAll('.suggestion-item').forEach((item) => {
                 item.addEventListener('click', () => {
                     input.value = item.textContent;
-                    document.getElementById('search-form').submit();
+                    searchForm.submit();
                 });
             });
         };
@@ -225,7 +286,7 @@
             } else if (e.key === 'Enter' && selectedIndex > -1) {
                 e.preventDefault();
                 input.value = items[selectedIndex].textContent;
-                document.getElementById('search-form').submit();
+                searchForm.submit();
             }
         });
 
