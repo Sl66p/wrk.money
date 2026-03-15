@@ -60,6 +60,27 @@
     filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4));
     margin-right: 6px; /* A bit of spacing for the reaper */
   }
+  #copy-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px); /* Hidden below screen */
+    background: rgba(20, 20, 20, 0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    z-index: 9999;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+    letter-spacing: 1px;
+}
+
+  #copy-toast.show {
+    transform: translateX(-50%) translateY(0); /* Slides up */
+}
     </style>
 </head>
 
@@ -492,32 +513,22 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <script>
 function copyToClipboard(text) {
-  console.log("Copying address:", text); // This helps us debug
-
-  navigator.clipboard.writeText(text).then(() => {
-    const toast = document.getElementById('copy-toast');
-    
-    if (toast) {
-      // Show the toast
-      toast.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
-      toast.classList.add('opacity-100', 'translate-y-0');
-
-      // Hide it after 2.5 seconds
-      setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
-        toast.classList.remove('opacity-100', 'translate-y-0');
-      }, 2500);
-    } else {
-      console.error("Popup element 'copy-toast' not found in HTML!");
-    }
-  }).catch(err => {
-    console.error('Failed to copy!', err);
-  });
+    navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById('copy-toast');
+        
+        // Show the toast
+        toast.classList.add('show');
+        
+        // Hide it after 2 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+    });
 }
 </script>
-    <div id="copy-toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full text-sm font-medium opacity-0 pointer-events-none transition-all duration-300 transform translate-y-2 z-[9999] glow">
-  Address Copied!
-</div>
+<div id="copy-toast">Copied to clipboard!</div>
 </body>
 
 </html>
