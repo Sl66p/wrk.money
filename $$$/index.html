@@ -29,8 +29,42 @@
             justify-content: center;
             align-items: center;
             color: var(--text);
-            overflow-x: hidden;
+            overflow: hidden;
             position: relative;
+        }
+
+        /* Click to Enter Overlay */
+        #enter-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            cursor: pointer;
+            transition: opacity 1s ease, visibility 1s;
+        }
+
+        #enter-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .enter-text {
+            font-size: 0.7rem;
+            letter-spacing: 5px;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            animation: pulse-text 2s infinite;
+        }
+
+        @keyframes pulse-text {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
         }
 
         #tsparticles {
@@ -51,10 +85,24 @@
             z-index: 1;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 1.5s ease;
         }
 
-        header { margin-bottom: 10px; }
+        .container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        header {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 25px 20px;
+            backdrop-filter: blur(8px);
+        }
 
         .pfp {
             width: 80px;
@@ -81,7 +129,6 @@
             opacity: 0.9;
         }
 
-        /* Badge Logic */
         .badge-container {
             position: relative;
             display: inline-block;
@@ -122,15 +169,62 @@
             text-transform: lowercase;
         }
 
-        /* Group Containers */
+        /* Audio Player Box */
+        .audio-box {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 15px 20px;
+            backdrop-filter: blur(8px);
+            text-align: left;
+        }
+
+        .audio-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .track-name {
+            font-size: 0.65rem;
+            text-transform: lowercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .play-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.7rem;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+
+        .play-btn:hover { opacity: 1; }
+
+        .progress-container {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #fff;
+            width: 0%;
+        }
+
         .section-label {
             font-size: 0.6rem;
             text-transform: uppercase;
             letter-spacing: 3px;
             color: rgba(255, 255, 255, 0.2);
-            margin-bottom: 10px;
+            margin: 5px 0 10px 5px;
             text-align: left;
-            padding-left: 5px;
         }
 
         .nav-group {
@@ -187,16 +281,20 @@
 </head>
 <body>
 
+    <div id="enter-overlay">
+        <div class="enter-text">[ click to enter ]</div>
+    </div>
+
     <div id="tsparticles"></div>
 
-    <div class="container">
+    <div class="container" id="main-content">
         <header>
             <img src="/wrk_files/pulsepfp.png" alt="pulse" class="pfp">
             <div class="name-row">
                 <h1>pulse</h1>
                 <div class="badge-container">
                     <a href="https://t.me/nft/CupidCharm-22005">
-                        <img src="/wrk_files/cupid_charm.gif" alt="Cupid Charm" class="badge-img">
+                        <img src="/wrk_files/cupid_charm.png" alt="Cupid Charm" class="badge-img">
                     </a>
                     <span class="tooltip">Cupid Charm #22005</span>
                 </div>
@@ -205,6 +303,17 @@
                 <span id="typewriter"></span><span id="cursor"></span>
             </div>
         </header>
+
+        <div class="audio-box">
+            <div class="audio-info">
+                <span class="track-name">I will go back to the start.</span>
+                <button class="play-btn" id="playBtn">PLAY</button>
+            </div>
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <audio id="audio" src="/wrk_files/I_will_go_back_to_the_start.mp3" loop></audio>
+        </div>
 
         <div class="nav-group">
             <span class="section-label">socials</span>
@@ -225,6 +334,40 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.12.0/tsparticles.bundle.min.js"></script>
     
     <script>
+        const audio = document.getElementById('audio');
+        const overlay = document.getElementById('enter-overlay');
+        const content = document.getElementById('main-content');
+        const playBtn = document.getElementById('playBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+
+        // Entry Logic
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            content.classList.add('visible');
+            audio.play();
+            playBtn.textContent = 'PAUSE';
+            setTimeout(type, 1000);
+        });
+
+        // Audio Logic
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) { audio.play(); playBtn.textContent = 'PAUSE'; }
+            else { audio.pause(); playBtn.textContent = 'PLAY'; }
+        });
+
+        audio.addEventListener('timeupdate', () => {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${percent}%`;
+        });
+
+        progressContainer.addEventListener('click', (e) => {
+            const width = progressContainer.clientWidth;
+            const clickX = e.offsetX;
+            audio.currentTime = (clickX / width) * audio.duration;
+        });
+
+        // Typewriter
         const phrases = ["trying to live in gods image.", "i wanna change the world.", "9994l"];
         let pIdx = 0, cIdx = 0, isDeleting = false;
         const target = document.getElementById('typewriter');
@@ -232,20 +375,12 @@
         function type() {
             const current = phrases[pIdx];
             target.textContent = isDeleting ? current.substring(0, cIdx--) : current.substring(0, cIdx++);
-            
-            if (!isDeleting && cIdx > current.length) {
-                isDeleting = true;
-                setTimeout(type, 2000);
-            } else if (isDeleting && cIdx < 0) {
-                isDeleting = false;
-                pIdx = (pIdx + 1) % phrases.length;
-                cIdx = 0;
-                setTimeout(type, 500);
-            } else {
-                setTimeout(type, isDeleting ? 40 : 80);
-            }
+            if (!isDeleting && cIdx > current.length) { isDeleting = true; setTimeout(type, 2000); }
+            else if (isDeleting && cIdx < 0) { isDeleting = false; pIdx = (pIdx + 1) % phrases.length; cIdx = 0; setTimeout(type, 500); }
+            else { setTimeout(type, isDeleting ? 40 : 80); }
         }
 
+        // Particles
         tsParticles.load("tsparticles", {
             particles: {
                 number: { value: 80, density: { enable: true, area: 800 } },
@@ -260,8 +395,6 @@
                 modes: { grab: { distance: 140, links: { opacity: 0.5 } } }
             }
         });
-
-        document.addEventListener("DOMContentLoaded", () => setTimeout(type, 1000));
     </script>
 </body>
 </html>
