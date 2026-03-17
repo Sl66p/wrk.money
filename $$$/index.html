@@ -376,13 +376,13 @@
             overlay.classList.add('hidden');
             content.classList.add('visible');
             audio.play();
-            playBtn.textContent = 'PAUSE';
+            playBtn.textContent = '||';
             setTimeout(type, 1000);
         });
 
         playBtn.addEventListener('click', () => {
-            if (audio.paused) { audio.play(); playBtn.textContent = 'II'; }
-            else { audio.pause(); playBtn.textContent = 'I>'; }
+            if (audio.paused) { audio.play(); playBtn.textContent = '||'; }
+            else { audio.pause(); playBtn.textContent = '|>'; }
         });
 
         volumeSlider.addEventListener('input', (e) => {
