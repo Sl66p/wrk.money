@@ -450,6 +450,43 @@
             },
             retina_detect: true
         });
+        // --- TAB TITLE ANIMATOR (Consistent Speed) ---
+(function() {
+    const tabWords = ["pulse"];
+    let wordIdx = 0;
+    let charIdx = 0;
+    let isRev = false;
+    const baseSpeed = 300; // Set both type and delete speed here (in ms)
+
+    function updateTab() {
+        const fullWord = tabWords[wordIdx];
+        const prefix = "@";
+        
+        // Render the title
+        document.title = prefix + fullWord.substring(0, charIdx);
+
+        if (!isRev) {
+            if (charIdx < fullWord.length) {
+                charIdx++;
+                setTimeout(updateTab, baseSpeed); 
+            } else {
+                isRev = true;
+                setTimeout(updateTab, 2000); // Pause on full word
+            }
+        } else {
+            if (charIdx > 0) {
+                charIdx--;
+                setTimeout(updateTab, baseSpeed); // Same speed as typing
+            } else {
+                isRev = false;
+                wordIdx = (wordIdx + 1) % tabWords.length;
+                setTimeout(updateTab, 500); // Small pause before next word
+            }
+        }
+    }
+
+    updateTab();
+})();
     </script>
 </body>
 </html>
