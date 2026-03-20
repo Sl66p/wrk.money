@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jerry | wrk.money</title>
+    <meta name="title" content="Jerry | wrk.money">
+    <meta name="description" content="Just a chill dude. 999 forever.">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://wrk.money/">
+    <meta property="og:title" content="Jerry's webcard">
+    <meta property="og:description" content="socials available here.">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://wrk.money/">
+    <meta property="twitter:title" content="Jerry's Webcard">
+    <meta property="twitter:description" content="socials & payment available here. 999.">
+
+    <meta name="theme-color" content="#ffffff">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/wrk_files/999circle.png" type="image/png">
+    
+    <style>
+        :root {
+            --accent: #ffffff;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+            /* Your requested color 122, 119, 120 in Hex */
+            --network-color: #7a7778; 
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            background-color: #000000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text);
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+            padding: 40px 0;
+        }
+
+        #enter-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            cursor: pointer;
+            transition: opacity 1s ease, visibility 1s;
+        }
+
+        #enter-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .enter-text {
+            font-size: 0.7rem;
+            letter-spacing: 5px;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            animation: jerry-text 2s infinite;
+        }
+
+        @keyframes jerry-text {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        #tsparticles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 1.5s ease;
+        }
+
+        .container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        header {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 25px 20px;
+            backdrop-filter: blur(8px);
+        }
+
+        .pfp {
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+            object-fit: cover;
+        }
+
+        .name-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: lowercase;
+            opacity: 0.9;
+        }
+
+        .badge-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .badge-img {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .badge-img:hover { transform: scale(1.2); }
+
+        .tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 5px 10px;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            font-size: 0.6rem;
+            white-space: nowrap;
+            z-index: 10;
+            text-transform: lowercase;
+        }
+
+        .badge-container:hover .tooltip { visibility: visible; }
+
+        .typewriter-container {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            min-height: 1.5em;
+            text-transform: lowercase;
+        }
+
+        .audio-box {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 15px 20px;
+            backdrop-filter: blur(8px);
+            text-align: left;
+        }
+
+        .audio-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .track-name {
+            font-size: 0.65rem;
+            text-transform: lowercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .play-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.8rem;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+            font-weight: bold;
+        }
+
+        .play-btn:hover { opacity: 1; }
+
+        .volume-slider {
+            -webkit-appearance: none;
+            width: 50px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #fff;
+            width: 0%;
+        }
+
+        .section-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: rgba(255, 255, 255, 0.2);
+            margin: 5px 0 10px 5px;
+            text-align: left;
+        }
+
+        .nav-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hub-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
+            text-transform: lowercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .hub-btn:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .console-footer {
+            margin-top: 20px;
+            font-size: 0.65rem;
+            opacity: 0.25;
+            letter-spacing: 4px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1rem;
+            background: #fff;
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div id="enter-overlay">
+        <div class="enter-text">[ click to enter ]</div>
+    </div>
+
+    <div id="tsparticles"></div>
+
+    <div class="container" id="main-content">
+        <header>
+            <img src="/wrk_files/pulsepfp.png" alt="jerry" class="pfp">
+            <div class="name-row">
+                <h1>Jerry</h1>
+                <div class="badge-container">
+                    <a href="https://t.me/nft/JesterHat-27112">
+                        <img src="/wrk_files/jesterhat.gif" alt="Jester Hat" class="badge-img">
+                    </a>
+                    <span class="tooltip">Jester Hat #27112</span>
+                </div>
+            </div>
+            <div class="typewriter-container">
+                <span id="typewriter"></span><span id="cursor"></span>
+            </div>
+        </header>
+
+        <div class="audio-box">
+            <div class="audio-info">
+                <span class="track-name">the.</span>
+                <div class="audio-controls">
+                    <button class="play-btn" id="playBtn">I></button>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.25">
+                </div>
+            </div>
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <audio id="audio" src="/wrk_files/the.mp3" loop></audio>
+        </div>
+
+        <div class="nav-group">
+            <span class="section-label">socials</span>
+            <a href="https://t.me/jrypk" class="hub-btn">telegram</a>
+            <a href="https://discord.com/users/1442972113760682089" class="hub-btn">discord</a>
+            <a href="https://www.snapchat.com/add/tall_ohare?share_id=8G8qiQXPk2Q&locale=en-CA-u-ms-metric-mu-celsius" class="hub-btn">snapchat</a>
+            <a href="https://github.com/novit11" class="hub-btn">github</a>
+            <a href="https://s.team/p/kbmf-hbqd/MDMWJDGN" class="hub-btn">steam</a>
+        </div>
+
+        <div class="console-footer">
+            Come say hi!
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.12.0/tsparticles.bundle.min.js"></script>
+    
+    <script>
+        const audio = document.getElementById('audio');
+        const overlay = document.getElementById('enter-overlay');
+        const content = document.getElementById('main-content');
+        const playBtn = document.getElementById('playBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+
+        audio.volume = 0.25;
+
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            content.classList.add('visible');
+            audio.play();
+            playBtn.textContent = '||';
+            setTimeout(type, 1000);
+        });
+
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) { audio.play(); playBtn.textContent = '||'; }
+            else { audio.pause(); playBtn.textContent = '|>'; }
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value;
+        });
+
+        audio.addEventListener('timeupdate', () => {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${percent}%`;
+        });
+
+        progressContainer.addEventListener('click', (e) => {
+            const width = progressContainer.clientWidth;
+            const clickX = e.offsetX;
+            audio.currentTime = (clickX / width) * audio.duration;
+        });
+
+        const phrases = ["the ones who don't believe in you now,", "will regret it later."];
+        let pIdx = 0, cIdx = 0, isDeleting = false;
+        const target = document.getElementById('typewriter');
+
+        function type() {
+            const current = phrases[pIdx];
+            target.textContent = isDeleting ? current.substring(0, cIdx--) : current.substring(0, cIdx++);
+            if (!isDeleting && cIdx > current.length) { isDeleting = true; setTimeout(type, 2000); }
+            else if (isDeleting && cIdx < 0) { isDeleting = false; pIdx = (pIdx + 1) % phrases.length; cIdx = 0; setTimeout(type, 500); }
+            else { setTimeout(type, isDeleting ? 40 : 80); }
+        }
+
+        // --- NETWORK BACKGROUND LOGIC ---
+        tsParticles.load("tsparticles", {
+            fpsLimit: 60,
+            particles: {
+                number: { value: 80, density: { enable: true, area: 800 } },
+                color: { value: "#7a7778" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5 },
+                size: { value: { min: 1, max: 3 } },
+                links: {
+                    enable: true,
+                    distance: 150,
+                    color: "#7a7778",
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 1.5,
+                    direction: "none",
+                    random: false,
+                    straight: false,
+                    outModes: { default: "out" }
+                }
+            },
+            interactivity: {
+                events: {
+                    onHover: { enable: true, mode: "grab" },
+                    onClick: { enable: true, mode: "push" }
+                },
+                modes: {
+                    grab: { distance: 200, links: { opacity: 0.8 } },
+                    push: { quantity: 4 }
+                }
+            },
+            retina_detect: true
+        });
+
+        // --- TAB TITLE ANIMATOR ---
+        (function() {
+            const tabWords = ["jerry", "insanity"];
+            let wordIdx = 0;
+            let charIdx = 0;
+            let isRev = false;
+            const baseSpeed = 300;
+
+            function updateTab() {
+                const fullWord = tabWords[wordIdx];
+                const prefix = "@";
+                document.title = prefix + fullWord.substring(0, charIdx);
+
+                if (!isRev) {
+                    if (charIdx < fullWord.length) { charIdx++; setTimeout(updateTab, baseSpeed); }
+                    else { isRev = true; setTimeout(updateTab, 2000); }
+                } else {
+                    if (charIdx > 0) { charIdx--; setTimeout(updateTab, baseSpeed); }
+                    else {
+                        isRev = false;
+                        wordIdx = (wordIdx + 1) % tabWords.length;
+                        charIdx = 0;
+                        setTimeout(updateTab, 500);
+                    }
+                }
+            }
+            updateTab();
+        })();
+    </script>
+</body>
+</html>
