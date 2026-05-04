@@ -3,29 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>hub | wrk.money</title>
-    <meta name="title" content="hub | wrk.money">
-    <meta name="description" content="A directory for all of ogkush's sites.">
+    <title>tools | wrk.money</title>
+    <meta name="title" content="tools | wrk.money">
+    <meta name="description" content="a small collection of tools by wrk.">
 
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://wrk.money/">
-    <meta property="og:title" content="hub | wrk.money">
-    <meta property="og:description" content="A directory for all of ogkush's sites.">
-
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://wrk.money/">
-    <meta property="twitter:title" content="hub | wrk.money">
-    <meta property="twitter:description" content="A directory for all of ogkush's sites.">
+    <meta property="og:url" content="https://wrk.money/tools">
+    <meta property="og:title" content="tools | wrk.money">
+    <meta property="og:description" content="a small collection of tools by wrk.">
 
     <meta name="theme-color" content="#ffffff">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" href="/wrk_files/999circle.png" type="image/png">
-    
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
+
     <style>
         :root {
-            --accent: #ffffff; /* White to match the particles */
+            --accent: #ffffff;
             --glass: rgba(255, 255, 255, 0.03);
             --border: rgba(255, 255, 255, 0.1);
             --text: #ffffff;
@@ -39,7 +32,7 @@
         }
 
         body {
-            background-color: #0a0a0a; /* Dark background for the network effect */
+            background-color: #0a0a0a;
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -49,7 +42,6 @@
             position: relative;
         }
 
-        /* Particles container takes up the full background */
         #tsparticles {
             position: absolute;
             width: 100%;
@@ -65,8 +57,20 @@
             width: 100%;
             max-width: 400px;
             padding: 20px;
-            z-index: 1; /* Sits above the particles */
+            z-index: 1;
         }
+
+        .back-link {
+            display: inline-block;
+            font-size: 0.65rem;
+            opacity: 0.3;
+            letter-spacing: 2px;
+            text-decoration: none;
+            color: #fff;
+            margin-bottom: 32px;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.7; }
 
         h1 {
             font-size: 2.2rem;
@@ -83,29 +87,39 @@
             gap: 15px;
         }
 
-        .hub-btn {
+        .tool-btn {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 22px;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 20px 22px;
             background: var(--glass);
             border: 1px solid var(--border);
-            border-radius: 4px; /* Slightly sharper for the terminal vibe */
+            border-radius: 4px;
             text-decoration: none;
             color: var(--text);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             text-transform: lowercase;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
         }
 
-        .hub-btn:hover {
+        .tool-btn:hover {
             background: rgba(255, 255, 255, 0.07);
             border-color: rgba(255, 255, 255, 0.5);
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .tool-name {
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .tool-desc {
+            font-size: 0.65rem;
+            opacity: 0.35;
+            letter-spacing: 1px;
         }
 
         .console-footer {
@@ -124,25 +138,22 @@
     <div id="tsparticles"></div>
 
     <div class="container">
-        <header>
-            <h1>wrk.money</h1>
-        </header>
+        <a href="/" class="back-link">← wrk.money</a>
+        <h1>tools</h1>
 
         <nav class="nav-list">
-            <a href="/$" class="hub-btn">ogkush's profile</a>
-            <a href="/$$$" class="hub-btn">pulse's profile</a>
-            <a href="/insanity" class="hub-btn">jerry's profile</a>
-            <a href="/startpage" class="hub-btn">start page</a>
-            <a href="/tools" class="hub-btn">tools</a>
+            <a href="/tools/ip-checker" class="tool-btn">
+                <span class="tool-name">ip / url checker</span>
+                <span class="tool-desc">geolocation · network info · reputation links</span>
+            </a>
         </nav>
     </div>
 
     <div class="console-footer">
-        NETWORK.ESTABLISHED // HUB_01
+        TOOLS.LOADED // WRK_01
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.12.0/tsparticles.bundle.min.js"></script>
-    
     <script>
         tsParticles.load("tsparticles", {
             particles: {

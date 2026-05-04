@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ip / url checker | wrk.money</title>
+    <meta name="title" content="ip / url checker | wrk.money">
+    <meta name="description" content="check any ip or url — geolocation, network info, reputation links.">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://wrk.money/tools/ip-checker">
+    <meta property="og:title" content="ip / url checker | wrk.money">
+    <meta property="og:description" content="check any ip or url — geolocation, network info, reputation links.">
+
+    <meta name="theme-color" content="#ffffff">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/wrk_files/999circle.png" type="image/png">
+
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+            --green: #00ff88;
+            --yellow: #ffc800;
+            --red: #ff5050;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            min-height: 100vh;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 20px 80px;
+            position: relative;
+        }
+
+        #tsparticles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 580px;
+        }
+
+        .back-link {
+            display: inline-block;
+            font-size: 0.65rem;
+            opacity: 0.3;
+            letter-spacing: 2px;
+            text-decoration: none;
+            color: #fff;
+            margin-bottom: 36px;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.7; }
+
+        h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: lowercase;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 0.62rem;
+            opacity: 0.3;
+            letter-spacing: 3px;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            padding: 14px 16px;
+            outline: none;
+            transition: border-color 0.2s;
+            letter-spacing: 1px;
+            backdrop-filter: blur(8px);
+        }
+        input[type="text"]::placeholder { opacity: 0.25; }
+        input[type="text"]:focus { border-color: rgba(255, 255, 255, 0.4); }
+
+        button {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            letter-spacing: 2px;
+            padding: 14px 22px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: lowercase;
+            backdrop-filter: blur(8px);
+        }
+        button:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        button:disabled { opacity: 0.35; cursor: default; }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 22px 24px;
+            margin-bottom: 10px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .card-label {
+            font-size: 0.58rem;
+            letter-spacing: 3px;
+            opacity: 0.3;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.78rem;
+            gap: 12px;
+        }
+        .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .info-row:first-of-type { padding-top: 0; }
+
+        .info-key {
+            opacity: 0.35;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+        .info-val {
+            opacity: 0.85;
+            text-align: right;
+            word-break: break-all;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 0.68rem;
+            letter-spacing: 2px;
+            text-transform: lowercase;
+        }
+        .risk-residential { color: var(--green); border: 1px solid rgba(0, 255, 136, 0.25); }
+        .risk-hosting     { color: var(--yellow); border: 1px solid rgba(255, 200, 0, 0.25); }
+        .risk-vpn         { color: var(--red); border: 1px solid rgba(255, 80, 80, 0.25); }
+
+        .links-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .ext-link {
+            display: inline-block;
+            font-size: 0.68rem;
+            letter-spacing: 1px;
+            color: #fff;
+            text-decoration: none;
+            opacity: 0.45;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 3px;
+            padding: 7px 13px;
+            transition: all 0.2s;
+        }
+        .ext-link:hover {
+            opacity: 0.85;
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .status-msg {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            padding: 16px 0;
+        }
+        .status-loading {
+            opacity: 0.35;
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+        .status-error { opacity: 0.55; color: var(--red); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.35; }
+            50%       { opacity: 0.1; }
+        }
+
+        .raw-toggle {
+            display: inline-block;
+            font-size: 0.6rem;
+            opacity: 0.25;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 14px;
+        }
+        .raw-toggle:hover { opacity: 0.6; }
+
+        pre.raw-data {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            padding: 16px;
+            font-size: 0.65rem;
+            opacity: 0.45;
+            overflow-x: auto;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            display: none;
+            line-height: 1.6;
+        }
+
+        .scan-link {
+            color: #fff;
+            opacity: 0.6;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .scan-link:hover { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <div id="tsparticles"></div>
+
+    <div class="container">
+        <a href="/tools" class="back-link">← tools</a>
+        <h1>ip / url checker</h1>
+        <p class="subtitle">geolocation · network · reputation links</p>
+
+        <div class="input-row">
+            <input type="text" id="query" placeholder="8.8.8.8  ·  google.com  ·  https://..." autocomplete="off" spellcheck="false">
+            <button id="checkBtn" onclick="runCheck()">check</button>
+        </div>
+
+        <div id="status"></div>
+        <div id="results"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.12.0/tsparticles.bundle.min.js"></script>
+    <script>
+        tsParticles.load("tsparticles", {
+            particles: {
+                number: { value: 60, density: { enable: true, area: 800 } },
+                color: { value: "#ffffff" },
+                shape: { type: "circle" },
+                opacity: { value: 0.2 },
+                size: { value: { min: 1, max: 2 } },
+                links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.1, width: 1 },
+                move: { enable: true, speed: 0.8, outModes: { default: "out" } }
+            },
+            interactivity: {
+                events: { onHover: { enable: true, mode: "grab" } },
+                modes: { grab: { distance: 140, links: { opacity: 0.3 } } }
+            },
+            retina_detect: true
+        });
+
+        document.getElementById('query').addEventListener('keydown', e => {
+            if (e.key === 'Enter') runCheck();
+        });
+
+        const VPN_ORGS = ['vpn', 'nordvpn', 'expressvpn', 'mullvad', 'protonvpn', 'surfshark',
+            'privateinternetaccess', ' pia ', 'hidemyass', 'cyberghost', 'ipvanish', 'torguard',
+            'tunnelbear', 'windscribe', 'torproject', 'anonymizer', 'hideip', 'perfect privacy',
+            'anonine', 'ivpn', 'airvpn', 'proxy'];
+
+        const HOSTING_ORGS = ['amazon', ' aws', 'google cloud', 'google llc', 'microsoft azure',
+            'digitalocean', 'linode', 'vultr', 'hetzner', 'ovh ', 'cloudflare', 'fastly', 'akamai',
+            'leaseweb', 'choopa', 'rackspace', 'heroku', 'scaleway', 'upcloud', 'serverius',
+            'psychz', 'colocation', 'datacenter', 'data center', 'hosting', 'server com',
+            'as-choopa', 'contabo', 'm247', 'path network', 'incapsula', 'imperva'];
+
+        function classifyOrg(org, isp) {
+            const text = ((org || '') + ' ' + (isp || '')).toLowerCase();
+            if (VPN_ORGS.some(k => text.includes(k)))     return 'vpn';
+            if (HOSTING_ORGS.some(k => text.includes(k))) return 'hosting';
+            return 'residential';
+        }
+
+        function isIPv4(s) { return /^(\d{1,3}\.){3}\d{1,3}$/.test(s); }
+        function isIPv6(s) { return /^[0-9a-f:]+$/i.test(s) && s.includes(':'); }
+
+        function parseInput(raw) {
+            raw = raw.trim();
+            if (isIPv4(raw) || isIPv6(raw)) return { type: 'ip', ip: raw, domain: null };
+            try {
+                const withScheme = /^https?:\/\//i.test(raw) ? raw : 'https://' + raw;
+                const url = new URL(withScheme);
+                const host = url.hostname;
+                if (isIPv4(host) || isIPv6(host)) return { type: 'ip', ip: host, domain: null };
+                return { type: 'domain', ip: null, domain: host };
+            } catch {
+                if (raw.includes('.') && !raw.includes(' ')) return { type: 'domain', ip: null, domain: raw };
+                return null;
+            }
+        }
+
+        async function resolveHostname(hostname) {
+            const res = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(hostname)}&type=A`);
+            const data = await res.json();
+            if (data.Answer) {
+                const a = data.Answer.find(r => r.type === 1);
+                if (a) return a.data;
+            }
+            return null;
+        }
+
+        async function getIPInfo(ip) {
+            const res = await fetch(`https://ipinfo.io/${encodeURIComponent(ip)}/json`);
+            return res.json();
+        }
+
+        // ipinfo.io returns org as "AS15169 Google LLC" — split into asn + name
+        function parseOrg(orgStr) {
+            if (!orgStr) return { asn: null, name: null };
+            const m = orgStr.match(/^(AS\d+)\s+(.+)$/);
+            return m ? { asn: m[1], name: m[2] } : { asn: null, name: orgStr };
+        }
+
+        function countryFullName(code) {
+            try { return new Intl.DisplayNames(['en'], { type: 'region' }).of(code); }
+            catch { return code; }
+        }
+
+        async function getURLScanResults(domain) {
+            try {
+                const res = await fetch(`https://urlscan.io/api/v1/search/?q=domain:${encodeURIComponent(domain)}&size=3`);
+                if (!res.ok) return null;
+                return res.json();
+            } catch { return null; }
+        }
+
+        function countryFlag(code) {
+            if (!code || code.length !== 2) return '';
+            return String.fromCodePoint(...[...code.toUpperCase()].map(c => c.charCodeAt(0) + 127397));
+        }
+
+        function esc(s) {
+            if (s == null) return '—';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        let _rawIP = null;
+        let _rawScan = null;
+
+        async function runCheck() {
+            const input = document.getElementById('query').value.trim();
+            if (!input) return;
+
+            const btn     = document.getElementById('checkBtn');
+            const status  = document.getElementById('status');
+            const results = document.getElementById('results');
+
+            btn.disabled = true;
+            results.innerHTML = '';
+            results.style.display = 'none';
+            _rawIP = null;
+            _rawScan = null;
+
+            const setStatus = (msg, cls = 'status-loading') =>
+                status.innerHTML = `<div class="status-msg ${cls}">${msg}</div>`;
+
+            try {
+                const parsed = parseInput(input);
+                if (!parsed) {
+                    setStatus('invalid input — enter an ip, domain, or url', 'status-error');
+                    btn.disabled = false;
+                    return;
+                }
+
+                let { ip, domain } = parsed;
+
+                if (parsed.type === 'domain') {
+                    setStatus('resolving hostname...');
+                    ip = await resolveHostname(domain);
+                    if (!ip) {
+                        setStatus('could not resolve hostname', 'status-error');
+                        btn.disabled = false;
+                        return;
+                    }
+                }
+
+                setStatus('fetching data...');
+                const [ipInfo, scanData] = await Promise.all([
+                    getIPInfo(ip),
+                    domain ? getURLScanResults(domain) : Promise.resolve(null)
+                ]);
+
+                _rawIP   = ipInfo;
+                _rawScan = scanData;
+
+                // ipinfo.io returns {error: true, reason: "..."} on failure, or {bogon: true} for private IPs
+                if (ipInfo.error) {
+                    setStatus(`lookup failed: ${esc(ipInfo.reason || 'unknown error')}`, 'status-error');
+                    btn.disabled = false;
+                    return;
+                }
+
+                status.innerHTML = '';
+
+                // ipinfo.io: org field is "AS15169 Google LLC" — parse it
+                const orgParsed = parseOrg(ipInfo.org);
+                const risk      = classifyOrg(orgParsed.name, null);
+                const riskLabel = { residential: 'residential', hosting: 'datacenter / hosting', vpn: 'vpn / proxy' }[risk];
+                const riskClass = { residential: 'risk-residential', hosting: 'risk-hosting', vpn: 'risk-vpn' }[risk];
+
+                // ipinfo.io: country is the 2-letter code (e.g. "US")
+                const flag        = countryFlag(ipInfo.country);
+                const countryName = ipInfo.country ? countryFullName(ipInfo.country) : null;
+                const scanCount   = scanData?.total ?? 0;
+
+                const vtUrl      = domain
+                    ? `https://www.virustotal.com/gui/domain/${domain}`
+                    : `https://www.virustotal.com/gui/ip-address/${ip}`;
+                const abuseUrl   = `https://www.abuseipdb.com/check/${ip}`;
+                const shodanUrl  = `https://www.shodan.io/host/${ip}`;
+                const urlscanUrl = domain
+                    ? `https://urlscan.io/search/#domain:${domain}`
+                    : `https://urlscan.io/search/#ip:${ip}`;
+
+                let latestScanHtml = '';
+                if (scanCount > 0 && scanData?.results?.[0]) {
+                    const r    = scanData.results[0];
+                    const date = new Date(r.task.time).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                    latestScanHtml = `
+                        <div class="info-row">
+                            <span class="info-key">latest scan</span>
+                            <span class="info-val">
+                                <a class="scan-link" href="https://urlscan.io/result/${esc(r.task.uuid)}/" target="_blank" rel="noopener">${esc(date)} ↗</a>
+                            </span>
+                        </div>`;
+                }
+
+                const domainSection = domain ? `
+                <div class="card">
+                    <div class="card-label">urlscan.io</div>
+                    <div class="info-row">
+                        <span class="info-key">previous scans</span>
+                        <span class="info-val">${scanCount > 0 ? scanCount + ' found' : 'none on record'}</span>
+                    </div>
+                    ${latestScanHtml}
+                </div>` : '';
+
+                const bogonNote = ipInfo.bogon
+                    ? `<div class="info-row"><span class="info-key">note</span><span class="info-val" style="opacity:0.5">private / reserved address</span></div>`
+                    : '';
+
+                results.style.display = 'block';
+                results.innerHTML = `
+                    <div class="card">
+                        <div class="card-label">target</div>
+                        ${domain ? `<div class="info-row"><span class="info-key">domain</span><span class="info-val">${esc(domain)}</span></div>` : ''}
+                        <div class="info-row"><span class="info-key">ip</span><span class="info-val">${esc(ip)}</span></div>
+                        ${ipInfo.hostname ? `<div class="info-row"><span class="info-key">hostname</span><span class="info-val">${esc(ipInfo.hostname)}</span></div>` : ''}
+                        ${bogonNote}
+                    </div>
+
+                    <div class="card">
+                        <div class="card-label">location</div>
+                        <div class="info-row">
+                            <span class="info-key">country</span>
+                            <span class="info-val">${flag ? flag + ' ' : ''}${esc(countryName)}</span>
+                        </div>
+                        <div class="info-row"><span class="info-key">region</span><span class="info-val">${esc(ipInfo.region || null)}</span></div>
+                        <div class="info-row"><span class="info-key">city</span><span class="info-val">${esc(ipInfo.city || null)}</span></div>
+                        <div class="info-row"><span class="info-key">timezone</span><span class="info-val">${esc(ipInfo.timezone || null)}</span></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-label">network</div>
+                        <div class="info-row"><span class="info-key">org</span><span class="info-val">${esc(orgParsed.name)}</span></div>
+                        <div class="info-row"><span class="info-key">asn</span><span class="info-val">${esc(orgParsed.asn)}</span></div>
+                        <div class="info-row">
+                            <span class="info-key">classification</span>
+                            <span class="info-val"><span class="risk-badge ${riskClass}">${riskLabel}</span></span>
+                        </div>
+                    </div>
+
+                    ${domainSection}
+
+                    <div class="card">
+                        <div class="card-label">deeper analysis</div>
+                        <div class="links-row">
+                            <a href="${esc(vtUrl)}"      target="_blank" rel="noopener" class="ext-link">virustotal ↗</a>
+                            <a href="${esc(abuseUrl)}"   target="_blank" rel="noopener" class="ext-link">abuseipdb ↗</a>
+                            <a href="${esc(shodanUrl)}"  target="_blank" rel="noopener" class="ext-link">shodan ↗</a>
+                            <a href="${esc(urlscanUrl)}" target="_blank" rel="noopener" class="ext-link">urlscan.io ↗</a>
+                        </div>
+                    </div>
+
+                    <span class="raw-toggle" id="rawToggle" onclick="toggleRaw()">[ show raw data ]</span>
+                    <pre class="raw-data" id="rawData">${esc(JSON.stringify({ ip: _rawIP, urlscan: _rawScan }, null, 2))}</pre>
+                `;
+
+            } catch (err) {
+                setStatus(`error: ${esc(err.message)}`, 'status-error');
+            }
+
+            btn.disabled = false;
+        }
+
+        function toggleRaw() {
+            const el     = document.getElementById('rawData');
+            const toggle = document.getElementById('rawToggle');
+            const open   = el.style.display === 'block';
+            el.style.display      = open ? 'none' : 'block';
+            toggle.textContent    = open ? '[ show raw data ]' : '[ hide raw data ]';
+        }
+    </script>
+</body>
+</html>
