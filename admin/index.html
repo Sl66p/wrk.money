@@ -82,8 +82,8 @@
                 <div class="hint">lowercase, letters/numbers/hyphens, min 3 chars</div>
             </div>
             <div class="field">
-                <label>password</label>
-                <input type="password" id="reg-password" placeholder="••••••••">
+                <label>password <span style="opacity:0.4">(optional — user can set it themselves via /setup)</span></label>
+                <input type="password" id="reg-password" placeholder="leave blank for user to claim">
             </div>
             <div class="field">
                 <label>profile slug <span style="opacity:0.4">(optional — defaults to username)</span></label>
@@ -168,7 +168,7 @@
         listEl.innerHTML = users.map(u => `
             <div class="user-row">
                 <div>
-                    <div>${u.username}</div>
+                    <div>${u.username} <span style="font-size:0.55rem;opacity:0.35;letter-spacing:1px">${u.claimed ? '· claimed' : '· unclaimed'}</span></div>
                     <div class="slug">wrk.money/${u.slug}</div>
                 </div>
                 <a href="https://wrk.money/${u.slug}" target="_blank">view →</a>
@@ -186,14 +186,14 @@
         const msgEl    = document.getElementById('create-msg');
         const btn      = document.getElementById('create-btn');
 
-        if (!username || !password) return;
+        if (!username) return;
         btn.disabled = true; btn.textContent = 'creating...';
         msgEl.className = 'msg'; msgEl.classList.remove('visible');
 
         try {
             const res = await apiCall('/auth/register', {
                 method: 'POST',
-                body: JSON.stringify({ username, password, ...(slug && { slug }) }),
+                body: JSON.stringify({ username, ...(password && { password }), ...(slug && { slug }) }),
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'failed');

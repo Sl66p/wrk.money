@@ -166,8 +166,33 @@ async function login(req, env, corsHeaders) {
   const user = await env.WRK_KV.get(`user:${body.username.toLowerCase()}`, { type: 'json' });
   if (!user) return err('invalid credentials', 401, corsHeaders);
 
+  if (!user.passwordHash) return err('account not yet claimed — set your password first', 403, corsHeaders);
+
   const hash = await hashPassword(body.password, user.salt);
   if (hash !== user.passwordHash) return err('invalid credentials', 401, corsHeaders);
+
+  const token = await signJWT(
+    { username: user.username, slug: user.slug, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30 },
+    env.JWT_SECRET
+  );
+
+  return json({ token, username: user.username, slug: user.slug }, 200, corsHeaders);
+}
+
+async function setupAccount(req, env, corsHeaders) {
+  const body = await req.json().catch(() => null);
+  if (!body?.slug || !body?.password) return err('slug and password required', 400, corsHeaders);
+  if (body.password.length < 8) return err('password must be at least 8 characters', 400, corsHeaders);
+
+  const slug = body.slug.toLowerCase().trim();
+  const user = await env.WRK_KV.get(`user:${slug}`, { type: 'json' });
+  if (!user) return err('no account found for that slug', 404, corsHeaders);
+  if (user.passwordHash) return err('account already claimed', 409, corsHeaders);
+
+  const salt = nanoid(16);
+  const passwordHash = await hashPassword(body.password, salt);
+  const updated = { ...user, passwordHash, salt };
+  await env.WRK_KV.put(`user:${slug}`, JSON.stringify(updated));
 
   const token = await signJWT(
     { username: user.username, slug: user.slug, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30 },
@@ -181,7 +206,7 @@ async function register(req, env, corsHeaders) {
   if (!requireAdmin(req, env)) return err('forbidden', 403, corsHeaders);
 
   const body = await req.json().catch(() => null);
-  if (!body?.username || !body?.password) return err('username and password required', 400, corsHeaders);
+  if (!body?.username) return err('username required', 400, corsHeaders);
 
   const username = body.username.toLowerCase().trim();
   const slug = (body.slug || username).toLowerCase().trim();
@@ -198,8 +223,8 @@ async function register(req, env, corsHeaders) {
   const existingSlug = await env.WRK_KV.get(`profile:${slug}`);
   if (existingSlug) return err('slug already taken', 409, corsHeaders);
 
-  const salt = nanoid(16);
-  const passwordHash = await hashPassword(body.password, salt);
+  const salt = body.password ? nanoid(16) : null;
+  const passwordHash = body.password ? await hashPassword(body.password, salt) : null;
 
   const user = { username, slug, passwordHash, salt, createdAt: Date.now() };
   const profile = {
@@ -277,7 +302,7 @@ async function listUsers(req, env, corsHeaders) {
   const users = await Promise.all(
     list.keys.map(async k => {
       const u = await env.WRK_KV.get(k.name, { type: 'json' });
-      return u ? { username: u.username, slug: u.slug, createdAt: u.createdAt } : null;
+      return u ? { username: u.username, slug: u.slug, claimed: !!u.passwordHash, createdAt: u.createdAt } : null;
     })
   );
   return json(users.filter(Boolean), 200, corsHeaders);
@@ -451,6 +476,7 @@ export default {
     // Auth
     if (req.method === 'POST' && path === '/auth/login')    return login(req, env, corsHeaders);
     if (req.method === 'POST' && path === '/auth/register') return register(req, env, corsHeaders);
+    if (req.method === 'POST' && path === '/auth/setup')    return setupAccount(req, env, corsHeaders);
     if (req.method === 'GET'  && path === '/auth/me')       return getMe(req, env, corsHeaders);
 
     // Profiles
