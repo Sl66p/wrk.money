@@ -1,0 +1,22 @@
+name = "wrk-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "WRK_KV"
+id = "65dc2c2bec014096b1e3f83282355e74"
+
+[[r2_buckets]]
+binding = "WRK_FILES"
+bucket_name = "wrk-files"
+
+[vars]
+ALLOWED_ORIGIN = "https://wrk.money"
+
+[[routes]]
+pattern = "api.wrk.money/*"
+zone_name = "wrk.money"
+
+[[routes]]
+pattern = "wrk.money/s/*"
+zone_name = "wrk.money"

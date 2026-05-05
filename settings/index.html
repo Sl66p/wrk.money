@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>settings | wrk.money</title>
+    <meta name="theme-color" content="#0a0a0a">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/wrk_files/999circle.png" type="image/png">
+    <style>
+        :root { --glass: rgba(255,255,255,0.03); --border: rgba(255,255,255,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JetBrains Mono', monospace; }
+        body { background: #0a0a0a; min-height: 100vh; color: #fff; padding: 60px 20px 100px; }
+        #tsparticles { position: fixed; inset: 0; z-index: 0; }
+        .container { position: relative; z-index: 1; width: 100%; max-width: 620px; margin: 0 auto; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 10px; }
+        h1 { font-size: 2rem; font-weight: 700; letter-spacing: 4px; text-transform: lowercase; opacity: 0.9; }
+        .top-actions { display: flex; gap: 8px; }
+        .card { background: var(--glass); border: 1px solid var(--border); border-radius: 4px; padding: 24px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); margin-bottom: 14px; }
+        .section-title { font-size: 0.6rem; opacity: 0.3; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; }
+        .field { margin-bottom: 14px; }
+        .field label { display: block; font-size: 0.6rem; opacity: 0.3; letter-spacing: 2px; margin-bottom: 7px; }
+        input[type="text"], input[type="url"], textarea {
+            width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+            border-radius: 4px; color: #fff; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem; padding: 10px 13px; outline: none; transition: border-color 0.2s;
+        }
+        input:focus, textarea:focus { border-color: rgba(255,255,255,0.35); }
+        input::placeholder, textarea::placeholder { opacity: 0.2; }
+        .hint { font-size: 0.58rem; opacity: 0.2; letter-spacing: 1px; margin-top: 5px; }
+        .btn {
+            background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+            color: #fff; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem; letter-spacing: 2px; text-transform: lowercase;
+            padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: all 0.2s;
+        }
+        .btn:hover:not(:disabled) { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.4); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-danger { border-color: rgba(255,80,80,0.3); color: rgba(255,120,120,0.8); }
+        .btn-danger:hover { background: rgba(255,80,80,0.1) !important; border-color: rgba(255,80,80,0.6) !important; color: #ff8080 !important; }
+        .btn-primary {
+            background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3);
+            font-size: 0.7rem; padding: 10px 22px;
+        }
+        .btn-primary:hover { background: rgba(255,255,255,0.18) !important; border-color: rgba(255,255,255,0.6) !important; }
+
+        /* Bio statements */
+        .bio-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .bio-row { display: flex; gap: 8px; align-items: center; }
+        .bio-row input { flex: 1; }
+        .remove-btn { flex-shrink: 0; background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); font-size: 0.7rem; padding: 9px 10px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .remove-btn:hover { border-color: rgba(255,80,80,0.5); color: #ff8080; }
+
+        /* Tabs */
+        .tabs-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 10px; }
+        .tab-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 4px; padding: 16px; }
+        .tab-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .tab-header input { flex: 1; }
+        .buttons-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .btn-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .btn-row input { flex: 1; min-width: 80px; }
+        .btn-row select { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; padding: 9px 10px; border-radius: 4px; outline: none; cursor: pointer; }
+        .btn-row select option { background: #111; }
+        .btn-row .url-input { flex: 2; }
+
+        /* Save bar */
+        .save-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(10,10,10,0.95); border-top: 1px solid var(--border);
+            padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+            z-index: 10; backdrop-filter: blur(12px); flex-wrap: wrap; gap: 10px;
+        }
+        .save-msg { font-size: 0.65rem; letter-spacing: 1px; opacity: 0; transition: opacity 0.3s; }
+        .save-msg.ok { color: #6bff9e; opacity: 1; }
+        .save-msg.err { color: #ff6b6b; opacity: 1; }
+        .save-actions { display: flex; gap: 8px; align-items: center; }
+    </style>
+</head>
+<body>
+<div id="tsparticles"></div>
+<div class="container">
+    <div class="top-row">
+        <h1>settings</h1>
+        <div class="top-actions">
+            <a id="preview-link" href="#" target="_blank" class="btn">preview ↗</a>
+            <button class="btn btn-danger" id="logout-btn">logout</button>
+        </div>
+    </div>
+
+    <!-- Basic Info -->
+    <div class="card">
+        <div class="section-title">profile</div>
+        <div class="field">
+            <label>display name <span style="color:#ff6b6b;opacity:0.6">*</span></label>
+            <input type="text" id="displayName" placeholder="your name" maxlength="50">
+        </div>
+        <div class="field">
+            <label>avatar url <span style="color:#ff6b6b;opacity:0.6">*</span></label>
+            <input type="url" id="avatar" placeholder="https://example.com/avatar.gif">
+            <div class="hint">link to an image or gif · recommended: 80×80px</div>
+        </div>
+    </div>
+
+    <!-- Bio Statements -->
+    <div class="card">
+        <div class="section-title">bio statements <span style="opacity:0.4">(cycles with typewriter)</span></div>
+        <div class="bio-list" id="bio-list"></div>
+        <button class="btn" id="add-bio">+ add statement</button>
+    </div>
+
+    <!-- Tabs & Buttons -->
+    <div class="card">
+        <div class="section-title">tabs & buttons</div>
+        <div class="tabs-list" id="tabs-list"></div>
+        <button class="btn" id="add-tab">+ add tab</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="card">
+        <div class="section-title">footer text <span style="opacity:0.4">(optional)</span></div>
+        <div class="field">
+            <input type="text" id="footer" placeholder="something short..." maxlength="100">
+        </div>
+    </div>
+</div>
+
+<div class="save-bar">
+    <div class="save-msg" id="save-msg"></div>
+    <div class="save-actions">
+        <button class="btn btn-primary" id="save-btn">save profile</button>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.12.0/tsparticles.bundle.min.js"></script>
+<script>
+    tsParticles.load("tsparticles", {
+        particles: {
+            number: { value: 80, density: { enable: true, area: 800 } },
+            color: { value: "#ffffff" }, shape: { type: "circle" },
+            opacity: { value: 0.3 }, size: { value: { min: 1, max: 3 } },
+            links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.2, width: 1 },
+            move: { enable: true, speed: 1, outModes: { default: "out" } }
+        },
+        interactivity: { events: { onHover: { enable: true, mode: "grab" } }, modes: { grab: { distance: 140, links: { opacity: 0.5 } } } },
+        retina_detect: true
+    });
+
+    const token = localStorage.getItem('wrk_token');
+    const slug  = localStorage.getItem('wrk_slug');
+    if (!token) { window.location.href = '/login'; }
+
+    document.getElementById('preview-link').href = `/${slug}`;
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        localStorage.removeItem('wrk_token');
+        localStorage.removeItem('wrk_slug');
+        window.location.href = '/login';
+    });
+
+    function authFetch(path, opts = {}) {
+        return fetch(`https://api.wrk.money${path}`, {
+            ...opts,
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...(opts.headers || {}) },
+        });
+    }
+
+    // ── Bio builder ───────────────────────────────────────────────────────────
+
+    const bioList = document.getElementById('bio-list');
+
+    function addBioRow(value = '') {
+        const row = document.createElement('div');
+        row.className = 'bio-row';
+        row.innerHTML = `
+            <input type="text" placeholder="bio statement..." value="${escHtml(value)}" maxlength="80">
+            <button class="remove-btn" title="remove">✕</button>
+        `;
+        row.querySelector('.remove-btn').addEventListener('click', () => row.remove());
+        bioList.appendChild(row);
+        if (!value) row.querySelector('input').focus();
+    }
+
+    document.getElementById('add-bio').addEventListener('click', () => addBioRow());
+
+    // ── Tab/button builder ────────────────────────────────────────────────────
+
+    const tabsList = document.getElementById('tabs-list');
+
+    function addButtonRow(tabCard, btn = {}) {
+        const buttonsDiv = tabCard.querySelector('.buttons-list');
+        const row = document.createElement('div');
+        row.className = 'btn-row';
+        const type = btn.type || 'link';
+        const urlVal = type === 'link' ? (btn.url || '') : (btn.value || '');
+        row.innerHTML = `
+            <input type="text" placeholder="button text" value="${escHtml(btn.text || '')}" maxlength="40">
+            <select class="type-sel">
+                <option value="link" ${type === 'link' ? 'selected' : ''}>link</option>
+                <option value="copy" ${type === 'copy' ? 'selected' : ''}>copy</option>
+            </select>
+            <input type="text" class="url-input" placeholder="${type === 'copy' ? 'text to copy' : 'https://...'}" value="${escHtml(urlVal)}">
+            <button class="remove-btn" title="remove">✕</button>
+        `;
+        row.querySelector('.remove-btn').addEventListener('click', () => row.remove());
+        row.querySelector('.type-sel').addEventListener('change', e => {
+            row.querySelector('.url-input').placeholder = e.target.value === 'copy' ? 'text to copy' : 'https://...';
+        });
+        buttonsDiv.appendChild(row);
+    }
+
+    function addTabCard(tab = {}) {
+        const card = document.createElement('div');
+        card.className = 'tab-card';
+        card.innerHTML = `
+            <div class="tab-header">
+                <input type="text" placeholder="tab label (e.g. socials)" value="${escHtml(tab.label || '')}" maxlength="30">
+                <button class="remove-btn" title="remove tab">✕</button>
+            </div>
+            <div class="buttons-list"></div>
+            <button class="btn add-btn-btn">+ add button</button>
+        `;
+        card.querySelector('.remove-btn').addEventListener('click', () => card.remove());
+        card.querySelector('.add-btn-btn').addEventListener('click', () => addButtonRow(card));
+        tabsList.appendChild(card);
+        if (tab.buttons?.length) tab.buttons.forEach(b => addButtonRow(card, b));
+        if (!tab.label) card.querySelector('input').focus();
+    }
+
+    document.getElementById('add-tab').addEventListener('click', () => addTabCard());
+
+    // ── Collect form state ────────────────────────────────────────────────────
+
+    function collectProfile() {
+        const bioStatements = Array.from(bioList.querySelectorAll('.bio-row input'))
+            .map(i => i.value.trim()).filter(Boolean);
+
+        const tabs = Array.from(tabsList.querySelectorAll('.tab-card')).map(card => ({
+            label: card.querySelector('.tab-header input').value.trim(),
+            buttons: Array.from(card.querySelectorAll('.btn-row')).map(row => {
+                const text = row.querySelectorAll('input')[0].value.trim();
+                const type = row.querySelector('.type-sel').value;
+                const urlVal = row.querySelector('.url-input').value.trim();
+                return type === 'copy'
+                    ? { text, type: 'copy', value: urlVal }
+                    : { text, type: 'link', url: urlVal };
+            }).filter(b => b.text),
+        })).filter(t => t.label);
+
+        return {
+            displayName: document.getElementById('displayName').value.trim(),
+            avatar: document.getElementById('avatar').value.trim(),
+            bioStatements,
+            tabs,
+            footer: document.getElementById('footer').value.trim(),
+        };
+    }
+
+    // ── Save ──────────────────────────────────────────────────────────────────
+
+    const saveMsg = document.getElementById('save-msg');
+    const saveBtn = document.getElementById('save-btn');
+
+    function showMsg(text, type) {
+        saveMsg.textContent = text;
+        saveMsg.className = `save-msg ${type}`;
+        setTimeout(() => { saveMsg.className = 'save-msg'; }, 3000);
+    }
+
+    saveBtn.addEventListener('click', async () => {
+        const profile = collectProfile();
+        saveBtn.disabled = true; saveBtn.textContent = 'saving...';
+
+        try {
+            const res = await authFetch(`/profile/${slug}`, {
+                method: 'PUT', body: JSON.stringify(profile),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'save failed');
+            showMsg('saved', 'ok');
+        } catch (e) {
+            if (e.message.includes('unauthorized')) { window.location.href = '/login'; return; }
+            showMsg(e.message, 'err');
+        } finally {
+            saveBtn.disabled = false; saveBtn.textContent = 'save profile';
+        }
+    });
+
+    // ── Load existing profile ─────────────────────────────────────────────────
+
+    async function loadProfile() {
+        try {
+            const res = await authFetch('/auth/me');
+            if (res.status === 401) { window.location.href = '/login'; return; }
+            const { profile } = await res.json();
+            if (!profile) return;
+
+            document.getElementById('displayName').value = profile.displayName || '';
+            document.getElementById('avatar').value = profile.avatar || '';
+            document.getElementById('footer').value = profile.footer || '';
+            (profile.bioStatements || []).forEach(s => addBioRow(s));
+            (profile.tabs || []).forEach(t => addTabCard(t));
+        } catch { window.location.href = '/login'; }
+    }
+
+    function escHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    loadProfile();
+</script>
+</body>
+</html>

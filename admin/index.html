@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>admin | wrk.money</title>
+    <meta name="theme-color" content="#0a0a0a">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/wrk_files/999circle.png" type="image/png">
+    <style>
+        :root { --glass: rgba(255,255,255,0.03); --border: rgba(255,255,255,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JetBrains Mono', monospace; }
+        body { background: #0a0a0a; min-height: 100vh; color: #fff; padding: 60px 20px; }
+        #tsparticles { position: fixed; inset: 0; z-index: 0; }
+        .container { position: relative; z-index: 1; width: 100%; max-width: 560px; margin: 0 auto; }
+        h1 { font-size: 2rem; font-weight: 700; letter-spacing: 4px; text-transform: lowercase; opacity: 0.9; margin-bottom: 2rem; }
+        .section-title { font-size: 0.6rem; opacity: 0.3; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; }
+        .card {
+            background: var(--glass); border: 1px solid var(--border);
+            border-radius: 4px; padding: 24px; backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px); margin-bottom: 16px;
+        }
+        .field { margin-bottom: 14px; }
+        .field label { display: block; font-size: 0.6rem; opacity: 0.3; letter-spacing: 2px; margin-bottom: 7px; }
+        input[type="text"], input[type="password"] {
+            width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+            border-radius: 4px; color: #fff; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem; padding: 10px 13px; outline: none; transition: border-color 0.2s;
+        }
+        input:focus { border-color: rgba(255,255,255,0.35); }
+        input::placeholder { opacity: 0.2; }
+        .hint { font-size: 0.58rem; opacity: 0.2; letter-spacing: 1px; margin-top: 5px; }
+        .btn {
+            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem; letter-spacing: 2px; text-transform: lowercase;
+            padding: 10px 20px; border-radius: 4px; cursor: pointer; transition: all 0.2s;
+        }
+        .btn:hover:not(:disabled) { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.5); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-full { width: 100%; padding: 11px; margin-top: 4px; }
+        .msg { font-size: 0.7rem; margin-top: 10px; letter-spacing: 1px; display: none; }
+        .msg.visible { display: block; }
+        .msg.ok { color: #6bff9e; }
+        .msg.err { color: #ff6b6b; }
+        .user-list { display: flex; flex-direction: column; gap: 8px; }
+        .user-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 14px; background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem;
+        }
+        .user-row .slug { opacity: 0.4; font-size: 0.65rem; }
+        .user-row a { color: rgba(255,255,255,0.4); font-size: 0.6rem; text-decoration: none; letter-spacing: 1px; transition: opacity 0.2s; }
+        .user-row a:hover { color: #fff; }
+        .empty { font-size: 0.7rem; opacity: 0.25; letter-spacing: 1px; text-align: center; padding: 20px 0; }
+        .gate { text-align: center; padding: 60px 0; }
+        .gate p { font-size: 0.7rem; opacity: 0.4; letter-spacing: 2px; margin-bottom: 20px; }
+        .footer { position: fixed; bottom: 30px; width: 100%; text-align: center; left: 0; z-index: 1; font-size: 0.6rem; opacity: 0.2; letter-spacing: 4px; }
+    </style>
+</head>
+<body>
+<div id="tsparticles"></div>
+<div class="container">
+    <h1>admin</h1>
+
+    <div id="gate" class="card gate">
+        <p>ADMIN SECRET REQUIRED</p>
+        <div class="field" style="text-align:left">
+            <label for="secret-input">admin secret</label>
+            <input type="password" id="secret-input" placeholder="enter admin secret">
+        </div>
+        <button class="btn btn-full" id="unlock-btn">unlock</button>
+        <div class="msg err" id="gate-err"></div>
+    </div>
+
+    <div id="panel" style="display:none">
+        <div class="card">
+            <div class="section-title">create account</div>
+            <div class="field">
+                <label>username</label>
+                <input type="text" id="reg-username" placeholder="username (also used to login)">
+                <div class="hint">lowercase, letters/numbers/hyphens, min 3 chars</div>
+            </div>
+            <div class="field">
+                <label>password</label>
+                <input type="password" id="reg-password" placeholder="••••••••">
+            </div>
+            <div class="field">
+                <label>profile slug <span style="opacity:0.4">(optional — defaults to username)</span></label>
+                <input type="text" id="reg-slug" placeholder="wrk.money/their-slug">
+                <div class="hint">min 3 chars · lowercase letters, numbers, hyphens only</div>
+            </div>
+            <button class="btn btn-full" id="create-btn">create account</button>
+            <div class="msg" id="create-msg"></div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">accounts</div>
+            <div id="user-list" class="user-list">
+                <div class="empty">loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="footer">WRK.MONEY // ADMIN</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.12.0/tsparticles.bundle.min.js"></script>
+<script>
+    tsParticles.load("tsparticles", {
+        particles: {
+            number: { value: 80, density: { enable: true, area: 800 } },
+            color: { value: "#ffffff" }, shape: { type: "circle" },
+            opacity: { value: 0.3 }, size: { value: { min: 1, max: 3 } },
+            links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.2, width: 1 },
+            move: { enable: true, speed: 1, outModes: { default: "out" } }
+        },
+        interactivity: { events: { onHover: { enable: true, mode: "grab" } }, modes: { grab: { distance: 140, links: { opacity: 0.5 } } } },
+        retina_detect: true
+    });
+
+    let adminSecret = sessionStorage.getItem('wrk_admin_secret') || '';
+
+    async function apiCall(path, opts = {}) {
+        return fetch(`https://api.wrk.money${path}`, {
+            ...opts,
+            headers: { 'Authorization': `Bearer ${adminSecret}`, 'Content-Type': 'application/json', ...(opts.headers || {}) },
+        });
+    }
+
+    async function loadUsers() {
+        const listEl = document.getElementById('user-list');
+        try {
+            const res = await apiCall('/admin/users');
+            if (!res.ok) { listEl.innerHTML = '<div class="empty">failed to load</div>'; return; }
+            const users = await res.json();
+            if (!users.length) { listEl.innerHTML = '<div class="empty">no accounts yet</div>'; return; }
+            listEl.innerHTML = users.map(u => `
+                <div class="user-row">
+                    <div>
+                        <div>${u.username}</div>
+                        <div class="slug">wrk.money/${u.slug}</div>
+                    </div>
+                    <a href="https://wrk.money/${u.slug}" target="_blank">view →</a>
+                </div>
+            `).join('');
+        } catch { listEl.innerHTML = '<div class="empty">error loading users</div>'; }
+    }
+
+    async function unlock() {
+        const secret = document.getElementById('secret-input').value.trim();
+        if (!secret) return;
+        adminSecret = secret;
+        const res = await apiCall('/admin/users');
+        if (res.status === 403) {
+            document.getElementById('gate-err').textContent = 'invalid secret';
+            document.getElementById('gate-err').classList.add('visible');
+            return;
+        }
+        sessionStorage.setItem('wrk_admin_secret', secret);
+        document.getElementById('gate').style.display = 'none';
+        document.getElementById('panel').style.display = 'block';
+        const users = await res.json();
+        renderUsers(users);
+    }
+
+    function renderUsers(users) {
+        const listEl = document.getElementById('user-list');
+        if (!users.length) { listEl.innerHTML = '<div class="empty">no accounts yet</div>'; return; }
+        listEl.innerHTML = users.map(u => `
+            <div class="user-row">
+                <div>
+                    <div>${u.username}</div>
+                    <div class="slug">wrk.money/${u.slug}</div>
+                </div>
+                <a href="https://wrk.money/${u.slug}" target="_blank">view →</a>
+            </div>
+        `).join('');
+    }
+
+    document.getElementById('unlock-btn').addEventListener('click', unlock);
+    document.getElementById('secret-input').addEventListener('keydown', e => { if (e.key === 'Enter') unlock(); });
+
+    document.getElementById('create-btn').addEventListener('click', async () => {
+        const username = document.getElementById('reg-username').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const slug     = document.getElementById('reg-slug').value.trim() || undefined;
+        const msgEl    = document.getElementById('create-msg');
+        const btn      = document.getElementById('create-btn');
+
+        if (!username || !password) return;
+        btn.disabled = true; btn.textContent = 'creating...';
+        msgEl.className = 'msg'; msgEl.classList.remove('visible');
+
+        try {
+            const res = await apiCall('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({ username, password, ...(slug && { slug }) }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'failed');
+
+            msgEl.textContent = `created: wrk.money/${data.slug}`;
+            msgEl.classList.add('msg', 'ok', 'visible');
+            document.getElementById('reg-username').value = '';
+            document.getElementById('reg-password').value = '';
+            document.getElementById('reg-slug').value = '';
+            loadUsers();
+        } catch (e) {
+            msgEl.textContent = e.message;
+            msgEl.classList.add('msg', 'err', 'visible');
+        } finally {
+            btn.disabled = false; btn.textContent = 'create account';
+        }
+    });
+
+    if (adminSecret) {
+        apiCall('/admin/users').then(async res => {
+            if (res.ok) {
+                document.getElementById('gate').style.display = 'none';
+                document.getElementById('panel').style.display = 'block';
+                renderUsers(await res.json());
+            } else { sessionStorage.removeItem('wrk_admin_secret'); adminSecret = ''; }
+        });
+    }
+</script>
+</body>
+</html>

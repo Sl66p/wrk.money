@@ -1,0 +1,485 @@
+const LIMITS = {
+  storageBytes: 10 * 1024 * 1024 * 1024,
+  classA: 1_000_000,
+  classB: 10_000_000,
+};
+
+const RATE_LIMIT_WINDOW = 60;
+const RATE_LIMIT_MAX = 20;
+
+const RESERVED_SLUGS = new Set([
+  '$', '$$', '$$$', 'insanity', 'startpage', 'tools', '404',
+  'p', 'd', 's', 'login', 'admin', 'settings', 'profile',
+  'wrk_files', 'api', 'index', 'favicon', 'cname', 'readme',
+  'auth', 'usage', 'robots.txt', 'sitemap.xml', 'assets',
+]);
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function monthKey() {
+  const d = new Date();
+  return `usage:${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+}
+
+function nanoid(len = 8) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let id = '';
+  const bytes = crypto.getRandomValues(new Uint8Array(len));
+  for (const b of bytes) id += chars[b % chars.length];
+  return id;
+}
+
+function cors(origin) {
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+}
+
+function json(data, status = 200, headers = {}) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...headers },
+  });
+}
+
+function err(msg, status = 400, extraHeaders = {}) {
+  return json({ error: msg }, status, extraHeaders);
+}
+
+// ── Rate limiting ─────────────────────────────────────────────────────────────
+
+async function checkRateLimit(env, ip) {
+  const key = `rl:${ip}:${Math.floor(Date.now() / 1000 / RATE_LIMIT_WINDOW)}`;
+  const count = parseInt(await env.WRK_KV.get(key) || '0');
+  if (count >= RATE_LIMIT_MAX) return false;
+  await env.WRK_KV.put(key, String(count + 1), { expirationTtl: RATE_LIMIT_WINDOW * 2 });
+  return true;
+}
+
+// ── Usage tracking ────────────────────────────────────────────────────────────
+
+async function getUsage(env) {
+  const raw = await env.WRK_KV.get(monthKey(), { type: 'json' });
+  return raw || { storageBytes: 0, classA: 0, classB: 0 };
+}
+
+async function incrementUsage(env, delta) {
+  const key = monthKey();
+  const usage = await getUsage(env);
+  const updated = {
+    storageBytes: usage.storageBytes + (delta.storageBytes || 0),
+    classA: usage.classA + (delta.classA || 0),
+    classB: usage.classB + (delta.classB || 0),
+  };
+  await env.WRK_KV.put(key, JSON.stringify(updated), { expirationTtl: 60 * 60 * 24 * 35 });
+  return updated;
+}
+
+async function checkLimits(env, need = {}) {
+  const usage = await getUsage(env);
+  if (need.storageBytes && usage.storageBytes + need.storageBytes > LIMITS.storageBytes)
+    return 'storage limit reached (10 GB/month)';
+  if (need.classA && usage.classA + need.classA > LIMITS.classA)
+    return 'write operation limit reached (1M/month)';
+  if (need.classB && usage.classB + need.classB > LIMITS.classB)
+    return 'read operation limit reached (10M/month)';
+  return null;
+}
+
+// ── Crypto / Auth ─────────────────────────────────────────────────────────────
+
+function b64url(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)))
+    .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+function b64urlDecode(str) {
+  return Uint8Array.from(atob(str.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+}
+
+async function hashPassword(password, salt) {
+  const data = new TextEncoder().encode(salt + password);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function signJWT(payload, secret) {
+  const header = b64url(new TextEncoder().encode(JSON.stringify({ alg: 'HS256', typ: 'JWT' })));
+  const body = b64url(new TextEncoder().encode(JSON.stringify(payload)));
+  const key = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const sig = b64url(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${header}.${body}`)));
+  return `${header}.${body}.${sig}`;
+}
+
+async function verifyJWT(token, secret) {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const [header, body, sig] = parts;
+    const key = await crypto.subtle.importKey(
+      'raw', new TextEncoder().encode(secret),
+      { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']
+    );
+    const valid = await crypto.subtle.verify(
+      'HMAC', key, b64urlDecode(sig),
+      new TextEncoder().encode(`${header}.${body}`)
+    );
+    if (!valid) return null;
+    const payload = JSON.parse(new TextDecoder().decode(b64urlDecode(body)));
+    if (payload.exp && Date.now() / 1000 > payload.exp) return null;
+    return payload;
+  } catch { return null; }
+}
+
+async function requireAuth(req, env) {
+  const auth = req.headers.get('Authorization') || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+  if (!token) return null;
+  return verifyJWT(token, env.JWT_SECRET);
+}
+
+function requireAdmin(req, env) {
+  const auth = req.headers.get('Authorization') || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+  return token && token === env.ADMIN_SECRET;
+}
+
+function validateSlug(slug) {
+  if (!slug || slug.length < 3) return 'slug must be at least 3 characters';
+  if (slug.length > 30) return 'slug must be 30 characters or less';
+  if (!/^[a-z0-9-]+$/.test(slug)) return 'slug may only contain lowercase letters, numbers, and hyphens';
+  if (RESERVED_SLUGS.has(slug)) return 'slug is reserved';
+  return null;
+}
+
+// ── Auth endpoints ────────────────────────────────────────────────────────────
+
+async function login(req, env, corsHeaders) {
+  const body = await req.json().catch(() => null);
+  if (!body?.username || !body?.password) return err('username and password required', 400, corsHeaders);
+
+  const user = await env.WRK_KV.get(`user:${body.username.toLowerCase()}`, { type: 'json' });
+  if (!user) return err('invalid credentials', 401, corsHeaders);
+
+  const hash = await hashPassword(body.password, user.salt);
+  if (hash !== user.passwordHash) return err('invalid credentials', 401, corsHeaders);
+
+  const token = await signJWT(
+    { username: user.username, slug: user.slug, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30 },
+    env.JWT_SECRET
+  );
+
+  return json({ token, username: user.username, slug: user.slug }, 200, corsHeaders);
+}
+
+async function register(req, env, corsHeaders) {
+  if (!requireAdmin(req, env)) return err('forbidden', 403, corsHeaders);
+
+  const body = await req.json().catch(() => null);
+  if (!body?.username || !body?.password) return err('username and password required', 400, corsHeaders);
+
+  const username = body.username.toLowerCase().trim();
+  const slug = (body.slug || username).toLowerCase().trim();
+
+  const slugErr = validateSlug(slug);
+  if (slugErr) return err(slugErr, 400, corsHeaders);
+
+  if (username.length < 3) return err('username must be at least 3 characters', 400, corsHeaders);
+  if (!/^[a-z0-9_-]+$/.test(username)) return err('username may only contain lowercase letters, numbers, underscores, and hyphens', 400, corsHeaders);
+
+  const existingUser = await env.WRK_KV.get(`user:${username}`);
+  if (existingUser) return err('username already taken', 409, corsHeaders);
+
+  const existingSlug = await env.WRK_KV.get(`profile:${slug}`);
+  if (existingSlug) return err('slug already taken', 409, corsHeaders);
+
+  const salt = nanoid(16);
+  const passwordHash = await hashPassword(body.password, salt);
+
+  const user = { username, slug, passwordHash, salt, createdAt: Date.now() };
+  const profile = {
+    slug,
+    displayName: username,
+    avatar: '',
+    bioStatements: [],
+    tabs: [],
+    footer: '',
+    createdAt: Date.now(),
+  };
+
+  await env.WRK_KV.put(`user:${username}`, JSON.stringify(user));
+  await env.WRK_KV.put(`profile:${slug}`, JSON.stringify(profile));
+
+  return json({ username, slug }, 201, corsHeaders);
+}
+
+async function getMe(req, env, corsHeaders) {
+  const payload = await requireAuth(req, env);
+  if (!payload) return err('unauthorized', 401, corsHeaders);
+  const profile = await env.WRK_KV.get(`profile:${payload.slug}`, { type: 'json' });
+  return json({ username: payload.username, slug: payload.slug, profile }, 200, corsHeaders);
+}
+
+// ── Profile endpoints ─────────────────────────────────────────────────────────
+
+async function getProfile(slug, env, corsHeaders) {
+  const profile = await env.WRK_KV.get(`profile:${slug}`, { type: 'json' });
+  if (!profile) return err('profile not found', 404, corsHeaders);
+  return json(profile, 200, corsHeaders);
+}
+
+async function updateProfile(slug, req, env, corsHeaders) {
+  const payload = await requireAuth(req, env);
+  if (!payload) return err('unauthorized', 401, corsHeaders);
+  if (payload.slug !== slug) return err('forbidden', 403, corsHeaders);
+
+  const existing = await env.WRK_KV.get(`profile:${slug}`, { type: 'json' });
+  if (!existing) return err('profile not found', 404, corsHeaders);
+
+  const body = await req.json().catch(() => null);
+  if (!body) return err('invalid json', 400, corsHeaders);
+
+  if (!body.displayName?.trim()) return err('display name is required', 400, corsHeaders);
+  if (!body.avatar?.trim()) return err('avatar is required', 400, corsHeaders);
+  if (!Array.isArray(body.bioStatements) || body.bioStatements.length < 1)
+    return err('at least one bio statement is required', 400, corsHeaders);
+
+  const updated = {
+    ...existing,
+    displayName: body.displayName.trim().slice(0, 50),
+    avatar: body.avatar.trim().slice(0, 500),
+    bioStatements: body.bioStatements.map(s => String(s).trim()).filter(Boolean).slice(0, 10),
+    tabs: (body.tabs || []).slice(0, 8).map(tab => ({
+      label: String(tab.label || '').trim().slice(0, 30),
+      buttons: (tab.buttons || []).slice(0, 12).map(btn => {
+        const base = { text: String(btn.text || '').trim().slice(0, 40), type: btn.type === 'copy' ? 'copy' : 'link' };
+        return base.type === 'copy'
+          ? { ...base, value: String(btn.value || '').trim().slice(0, 200) }
+          : { ...base, url: String(btn.url || '').trim().slice(0, 500) };
+      }).filter(btn => btn.text),
+    })).filter(tab => tab.label),
+    footer: String(body.footer || '').trim().slice(0, 100),
+    updatedAt: Date.now(),
+  };
+
+  await env.WRK_KV.put(`profile:${slug}`, JSON.stringify(updated));
+  return json(updated, 200, corsHeaders);
+}
+
+async function listUsers(req, env, corsHeaders) {
+  if (!requireAdmin(req, env)) return err('forbidden', 403, corsHeaders);
+  const list = await env.WRK_KV.list({ prefix: 'user:' });
+  const users = await Promise.all(
+    list.keys.map(async k => {
+      const u = await env.WRK_KV.get(k.name, { type: 'json' });
+      return u ? { username: u.username, slug: u.slug, createdAt: u.createdAt } : null;
+    })
+  );
+  return json(users.filter(Boolean), 200, corsHeaders);
+}
+
+// ── Pastebin ──────────────────────────────────────────────────────────────────
+
+async function createPaste(req, env, corsHeaders) {
+  const body = await req.json().catch(() => null);
+  if (!body?.content) return err('content required', 400, corsHeaders);
+  if (typeof body.content !== 'string' || body.content.length > 500_000)
+    return err('content too large (max 500KB)', 400, corsHeaders);
+
+  const limitErr = await checkLimits(env, { classA: 1 });
+  if (limitErr) return err(limitErr, 429, corsHeaders);
+
+  const id = nanoid();
+  const ttl = body.ttl || 60 * 60 * 24 * 30;
+  const record = {
+    content: body.content,
+    lang: body.lang || 'plaintext',
+    createdAt: Date.now(),
+    expiresAt: Date.now() + ttl * 1000,
+  };
+
+  await env.WRK_KV.put(`p:${id}`, JSON.stringify(record), { expirationTtl: ttl });
+  await incrementUsage(env, { classA: 1 });
+  return json({ id, url: `https://wrk.money/p/?id=${id}` }, 201, corsHeaders);
+}
+
+async function getPaste(id, env, corsHeaders) {
+  const limitErr = await checkLimits(env, { classB: 1 });
+  if (limitErr) return err(limitErr, 429, corsHeaders);
+
+  const raw = await env.WRK_KV.get(`p:${id}`, { type: 'json' });
+  await incrementUsage(env, { classB: 1 });
+
+  if (!raw) return err('paste not found', 404, corsHeaders);
+  return json(raw, 200, corsHeaders);
+}
+
+// ── File Share ────────────────────────────────────────────────────────────────
+
+async function uploadFile(req, env, corsHeaders) {
+  const formData = await req.formData().catch(() => null);
+  if (!formData) return err('multipart/form-data required', 400, corsHeaders);
+
+  const file = formData.get('file');
+  if (!file || typeof file === 'string') return err('file required', 400, corsHeaders);
+
+  const maxFileSize = 100 * 1024 * 1024;
+  if (file.size > maxFileSize) return err('file too large (max 100MB)', 400, corsHeaders);
+
+  const limitErr = await checkLimits(env, { storageBytes: file.size, classA: 1 });
+  if (limitErr) return err(limitErr, 429, corsHeaders);
+
+  const id = nanoid();
+  const ttlParam = formData.get('ttl');
+  const ttlOptions = { '1d': 86400, '7d': 604800, '30d': 2592000, never: 0 };
+  const ttl = ttlOptions[ttlParam] ?? 604800;
+
+  const bytes = await file.arrayBuffer();
+  await env.WRK_FILES.put(id, bytes, {
+    httpMetadata: { contentType: file.type || 'application/octet-stream' },
+    customMetadata: { name: file.name, size: String(file.size) },
+  });
+
+  const meta = {
+    name: file.name,
+    type: file.type || 'application/octet-stream',
+    size: file.size,
+    createdAt: Date.now(),
+    expiresAt: ttl ? Date.now() + ttl * 1000 : null,
+  };
+  const kvOpts = ttl ? { expirationTtl: ttl } : {};
+  await env.WRK_KV.put(`d:${id}`, JSON.stringify(meta), kvOpts);
+  await incrementUsage(env, { storageBytes: file.size, classA: 1 });
+  return json({ id, url: `https://wrk.money/d/?id=${id}` }, 201, corsHeaders);
+}
+
+async function getFileMeta(id, env, corsHeaders) {
+  const meta = await env.WRK_KV.get(`d:${id}`, { type: 'json' });
+  await incrementUsage(env, { classB: 1 });
+  if (!meta) return err('file not found or expired', 404, corsHeaders);
+  if (meta.expiresAt && Date.now() > meta.expiresAt) return err('file expired', 410, corsHeaders);
+  return json(meta, 200, corsHeaders);
+}
+
+async function getFile(id, env, corsHeaders) {
+  const limitErr = await checkLimits(env, { classB: 1 });
+  if (limitErr) return err(limitErr, 429, corsHeaders);
+
+  const meta = await env.WRK_KV.get(`d:${id}`, { type: 'json' });
+  if (!meta) return err('file not found or expired', 404, corsHeaders);
+
+  if (meta.expiresAt && Date.now() > meta.expiresAt) {
+    await env.WRK_FILES.delete(id);
+    await env.WRK_KV.delete(`d:${id}`);
+    await incrementUsage(env, { classA: 1 });
+    return err('file expired', 410, corsHeaders);
+  }
+
+  const obj = await env.WRK_FILES.get(id);
+  await incrementUsage(env, { classB: 1 });
+  if (!obj) return err('file not found', 404, corsHeaders);
+
+  return new Response(obj.body, {
+    headers: {
+      'Content-Type': meta.type,
+      'Content-Disposition': `attachment; filename="${meta.name}"`,
+      ...corsHeaders,
+    },
+  });
+}
+
+// ── URL Shortener ─────────────────────────────────────────────────────────────
+
+async function createShortUrl(req, env, corsHeaders) {
+  const body = await req.json().catch(() => null);
+  if (!body?.url) return err('url required', 400, corsHeaders);
+
+  try { new URL(body.url); } catch { return err('invalid url', 400, corsHeaders); }
+
+  const limitErr = await checkLimits(env, { classA: 1 });
+  if (limitErr) return err(limitErr, 429, corsHeaders);
+
+  const slug = body.slug || nanoid(6);
+  const existing = await env.WRK_KV.get(`s:${slug}`);
+  if (existing) return err('slug already taken', 409, corsHeaders);
+
+  await env.WRK_KV.put(`s:${slug}`, body.url);
+  await incrementUsage(env, { classA: 1 });
+  return json({ slug, url: `https://wrk.money/s/${slug}` }, 201, corsHeaders);
+}
+
+async function resolveShortUrl(slug, env) {
+  const target = await env.WRK_KV.get(`s:${slug}`);
+  await incrementUsage(env, { classB: 1 });
+  if (!target) return new Response('not found', { status: 404 });
+  return Response.redirect(target, 302);
+}
+
+// ── Router ────────────────────────────────────────────────────────────────────
+
+export default {
+  async fetch(req, env) {
+    const url = new URL(req.url);
+    const origin = req.headers.get('Origin') || '';
+    const allowedOrigin = env.ALLOWED_ORIGIN || 'https://wrk.money';
+    const corsHeaders = cors(allowedOrigin);
+
+    if (req.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: corsHeaders });
+    }
+
+    if (origin && origin !== allowedOrigin) {
+      return err('forbidden', 403);
+    }
+
+    const ip = req.headers.get('CF-Connecting-IP') || 'unknown';
+    const allowed = await checkRateLimit(env, ip);
+    if (!allowed) return err('rate limit exceeded', 429, corsHeaders);
+
+    const path = url.pathname;
+
+    // wrk.money/s/:slug — URL shortener redirect
+    if (url.hostname === 'wrk.money' && path.startsWith('/s/')) {
+      return resolveShortUrl(path.slice(3), env);
+    }
+
+    // Auth
+    if (req.method === 'POST' && path === '/auth/login')    return login(req, env, corsHeaders);
+    if (req.method === 'POST' && path === '/auth/register') return register(req, env, corsHeaders);
+    if (req.method === 'GET'  && path === '/auth/me')       return getMe(req, env, corsHeaders);
+
+    // Profiles
+    if (req.method === 'GET' && path.startsWith('/profile/'))
+      return getProfile(path.slice(9), env, corsHeaders);
+    if (req.method === 'PUT' && path.startsWith('/profile/'))
+      return updateProfile(path.slice(9), req, env, corsHeaders);
+
+    // Admin
+    if (req.method === 'GET' && path === '/admin/users') return listUsers(req, env, corsHeaders);
+
+    // Pastebin
+    if (req.method === 'POST' && path === '/p') return createPaste(req, env, corsHeaders);
+    if (req.method === 'GET'  && path.startsWith('/p/')) return getPaste(path.slice(3), env, corsHeaders);
+
+    // File share
+    if (req.method === 'POST' && path === '/d') return uploadFile(req, env, corsHeaders);
+    if (req.method === 'GET'  && path.startsWith('/d/') && path.endsWith('/meta')) return getFileMeta(path.slice(3, -5), env, corsHeaders);
+    if (req.method === 'GET'  && path.startsWith('/d/')) return getFile(path.slice(3), env, corsHeaders);
+
+    // URL shortener API
+    if (req.method === 'POST' && path === '/s') return createShortUrl(req, env, corsHeaders);
+    if (req.method === 'GET'  && path.startsWith('/s/')) return resolveShortUrl(path.slice(3), env);
+
+    if (path === '/usage') {
+      const usage = await getUsage(env);
+      return json({ usage, limits: LIMITS }, 200, corsHeaders);
+    }
+
+    return err('not found', 404, corsHeaders);
+  },
+};
