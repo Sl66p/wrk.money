@@ -87,8 +87,11 @@
             </div>
             <div class="field">
                 <label>profile slug <span style="opacity:0.4">(optional — defaults to username)</span></label>
-                <input type="text" id="reg-slug" placeholder="wrk.money/their-slug">
-                <div class="hint">min 3 chars · lowercase letters, numbers, hyphens only</div>
+                <div style="display:flex;align-items:center;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:4px;overflow:hidden">
+                    <span style="font-size:0.7rem;opacity:0.3;padding:10px 0 10px 13px;white-space:nowrap">wrk.money/</span>
+                    <input type="text" id="reg-slug" placeholder="their-slug" style="border:none;background:transparent;padding-left:4px">
+                </div>
+                <div class="hint">leave blank to use username · min 3 chars for new profiles</div>
             </div>
             <button class="btn btn-full" id="create-btn">create account</button>
             <div class="msg" id="create-msg"></div>
