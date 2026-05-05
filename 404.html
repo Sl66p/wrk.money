@@ -81,6 +81,18 @@
         .hub-btn:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.5); transform: translateY(-2px); }
         .console-footer { margin-top: 20px; font-size: 0.65rem; opacity: 0.25; letter-spacing: 4px; width: 100%; text-align: center; }
 
+        /* Audio player */
+        .audio-box { background: var(--glass); border: 1px solid var(--border); border-radius: 4px; padding: 15px 20px; backdrop-filter: blur(8px); text-align: left; }
+        .audio-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .track-name { font-size: 0.65rem; text-transform: lowercase; letter-spacing: 1px; color: rgba(255,255,255,0.6); }
+        .audio-controls { display: flex; align-items: center; gap: 15px; }
+        .play-btn { background: none; border: none; color: #fff; cursor: pointer; font-size: 0.8rem; opacity: 0.5; transition: opacity 0.3s; font-weight: bold; }
+        .play-btn:hover { opacity: 1; }
+        .volume-slider { -webkit-appearance: none; width: 50px; height: 1px; background: rgba(255,255,255,0.1); outline: none; cursor: pointer; }
+        .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 6px; height: 6px; background: #fff; border-radius: 50%; }
+        .progress-container { width: 100%; height: 2px; background: rgba(255,255,255,0.05); cursor: pointer; }
+        .progress-bar { height: 100%; background: #fff; width: 0%; }
+
         #copy-toast {
             position: fixed; bottom: 30px; left: 50%;
             transform: translateX(-50%) translateY(100px);
@@ -139,20 +151,19 @@
     const slug = pathParts[0];
     const isProfileCandidate = slug && slug.length >= 3 && !RESERVED.has(slug) && /^[a-z0-9-]+$/.test(slug);
 
-    tsParticles.load("tsparticles", {
-        particles: {
-            number: { value: 80, density: { enable: true, area: 800 } },
-            color: { value: "#ffffff" }, shape: { type: "circle" },
-            opacity: { value: 0.3 }, size: { value: { min: 1, max: 3 } },
-            links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.2, width: 1 },
-            move: { enable: true, speed: 1, outModes: { default: "out" } }
-        },
-        interactivity: {
-            events: { onHover: { enable: true, mode: "grab" }, onClick: { enable: true, mode: "push" } },
-            modes: { grab: { distance: 140, links: { opacity: 0.5 } }, push: { quantity: 4 } }
-        },
-        retina_detect: true
-    });
+    // particles loaded by renderProfile() for profiles, or below for 404 pages
+    function loadDefaultParticles() {
+        tsParticles.load("tsparticles", {
+            particles: {
+                number: { value: 60, density: { enable: true, area: 800 } },
+                color: { value: "#ffffff" }, shape: { type: "circle" },
+                opacity: { value: 0.3 }, size: { value: { min: 1, max: 2 } },
+                links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.15, width: 1 },
+                move: { enable: true, speed: 0.5, outModes: { default: "out" } }
+            },
+            retina_detect: true
+        });
+    }
 
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(() => {
@@ -169,6 +180,46 @@
         document.getElementById('p-pfp').alt = profile.displayName;
         document.getElementById('p-name').textContent = profile.displayName;
         document.getElementById('p-footer').textContent = profile.footer || '';
+
+        // Music player
+        if (profile.musicEnabled && profile.musicUrl) {
+            const audioBox = document.createElement('div');
+            audioBox.className = 'audio-box';
+            audioBox.id = 'p-audio-box';
+            audioBox.innerHTML = `
+                <div class="audio-info">
+                    <span class="track-name">${escHtml(profile.musicTitle || 'untitled')}</span>
+                    <div class="audio-controls">
+                        <button class="play-btn" id="p-play-btn">I&gt;</button>
+                        <input type="range" class="volume-slider" id="p-volume" min="0" max="1" step="0.01" value="0.25">
+                    </div>
+                </div>
+                <div class="progress-container" id="p-progress-container">
+                    <div class="progress-bar" id="p-progress-bar"></div>
+                </div>
+                <audio id="p-audio" src="${escHtml(profile.musicUrl)}" loop></audio>
+            `;
+            document.getElementById('p-tabs').before(audioBox);
+
+            const audio = document.getElementById('p-audio');
+            const playBtn = document.getElementById('p-play-btn');
+            const volume = document.getElementById('p-volume');
+            const progressBar = document.getElementById('p-progress-bar');
+            const progressContainer = document.getElementById('p-progress-container');
+
+            audio.volume = 0.25;
+            playBtn.addEventListener('click', () => {
+                if (audio.paused) { audio.play(); playBtn.textContent = '||'; }
+                else { audio.pause(); playBtn.textContent = 'I>'; }
+            });
+            volume.addEventListener('input', e => { audio.volume = e.target.value; });
+            audio.addEventListener('timeupdate', () => {
+                progressBar.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+            });
+            progressContainer.addEventListener('click', e => {
+                audio.currentTime = (e.offsetX / progressContainer.clientWidth) * audio.duration;
+            });
+        }
 
         const tabsEl = document.getElementById('p-tabs');
         tabsEl.innerHTML = '';
@@ -214,7 +265,35 @@
             document.getElementById('cursor').style.display = 'none';
         }
 
-        // Show enter overlay → profile
+        // Background
+        const networkConfig = {
+            particles: {
+                number: { value: 80, density: { enable: true, area: 800 } },
+                color: { value: "#ffffff" }, shape: { type: "circle" },
+                opacity: { value: 0.3 }, size: { value: { min: 1, max: 3 } },
+                links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.2, width: 1 },
+                move: { enable: true, speed: 1, direction: "none", outModes: { default: "out" } }
+            },
+            interactivity: {
+                events: { onHover: { enable: true, mode: "grab" }, onClick: { enable: true, mode: "push" } },
+                modes: { grab: { distance: 140, links: { opacity: 0.5 } }, push: { quantity: 4 } }
+            },
+            retina_detect: true
+        };
+        const winterConfig = {
+            fpsLimit: 120,
+            particles: {
+                number: { value: 150, density: { enable: true, area: 800 } },
+                color: { value: "#ffffff" }, shape: { type: "circle" },
+                opacity: { value: { min: 0.1, max: 0.8 }, animation: { enable: true, speed: 1, sync: false } },
+                size: { value: { min: 0.5, max: 3 }, animation: { enable: true, speed: 5, sync: false, startValue: "min" } },
+                move: { enable: true, speed: { min: 3, max: 10 }, direction: "top-left", outModes: { default: "out" }, attract: { enable: true, rotate: { x: 600, y: 1200 } } }
+            },
+            retina_detect: true
+        };
+        tsParticles.load("tsparticles", profile.background === 'winter' ? winterConfig : networkConfig);
+
+        // Enter overlay
         const overlay = document.getElementById('enter-overlay');
         const content = document.getElementById('main-content');
         overlay.style.display = 'flex';
@@ -223,6 +302,11 @@
         overlay.addEventListener('click', () => {
             overlay.classList.add('hidden');
             content.classList.add('visible');
+            if (profile.musicEnabled && profile.musicUrl) {
+                const audio = document.getElementById('p-audio');
+                const playBtn = document.getElementById('p-play-btn');
+                if (audio) { audio.play().catch(() => {}); playBtn.textContent = '||'; }
+            }
         });
 
         // Tab title animator
@@ -248,6 +332,7 @@
     async function init() {
         if (!isProfileCandidate) {
             document.getElementById('not-found').classList.add('visible');
+            loadDefaultParticles();
             return;
         }
 
@@ -258,6 +343,7 @@
             renderProfile(profile);
         } catch {
             document.getElementById('not-found').classList.add('visible');
+            loadDefaultParticles();
         }
     }
 

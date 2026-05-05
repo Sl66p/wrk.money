@@ -38,11 +38,35 @@
         .btn:disabled { opacity: 0.3; cursor: not-allowed; }
         .btn-danger { border-color: rgba(255,80,80,0.3); color: rgba(255,120,120,0.8); }
         .btn-danger:hover { background: rgba(255,80,80,0.1) !important; border-color: rgba(255,80,80,0.6) !important; color: #ff8080 !important; }
-        .btn-primary {
-            background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3);
-            font-size: 0.7rem; padding: 10px 22px;
-        }
+        .btn-primary { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); font-size: 0.7rem; padding: 10px 22px; }
         .btn-primary:hover { background: rgba(255,255,255,0.18) !important; border-color: rgba(255,255,255,0.6) !important; }
+
+        /* Avatar */
+        .pfp-preview { width: 80px; height: 80px; border-radius: 4px; border: 1px solid var(--border); object-fit: cover; margin-bottom: 10px; display: none; }
+        .upload-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+        .upload-status { font-size: 0.6rem; opacity: 0.35; letter-spacing: 1px; }
+        .upload-progress { display: none; margin-bottom: 8px; }
+        .upload-progress-bar { height: 2px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+        .upload-progress-fill { height: 100%; background: rgba(255,255,255,0.5); width: 0%; transition: width 0.2s; }
+        .upload-progress-label { font-size: 0.58rem; opacity: 0.25; letter-spacing: 1px; margin-top: 4px; text-align: center; }
+        .url-fallback label { font-size: 0.55rem; opacity: 0.2; letter-spacing: 1px; margin-bottom: 5px; }
+
+        /* Music toggle */
+        .toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .toggle-row input[type="checkbox"] { width: 14px; height: 14px; accent-color: #fff; cursor: pointer; flex-shrink: 0; }
+        .toggle-row label { font-size: 0.65rem; opacity: 0.4; letter-spacing: 1px; cursor: pointer; margin: 0; }
+
+        /* Background selector */
+        .bg-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+        .bg-option {
+            flex: 1; min-width: 180px; padding: 14px 16px;
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+            border-radius: 4px; cursor: pointer; transition: all 0.2s; user-select: none;
+        }
+        .bg-option:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.04); }
+        .bg-option.selected { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.06); }
+        .bg-option-name { font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 5px; text-transform: lowercase; }
+        .bg-option-desc { font-size: 0.58rem; opacity: 0.3; letter-spacing: 1px; line-height: 1.4; }
 
         /* Bio statements */
         .bio-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
@@ -87,7 +111,7 @@
         </div>
     </div>
 
-    <!-- Basic Info -->
+    <!-- Profile basics -->
     <div class="card">
         <div class="section-title">profile</div>
         <div class="field">
@@ -95,9 +119,65 @@
             <input type="text" id="displayName" placeholder="your name" maxlength="50">
         </div>
         <div class="field">
-            <label>avatar url <span style="color:#ff6b6b;opacity:0.6">*</span></label>
-            <input type="url" id="avatar" placeholder="https://example.com/avatar.gif">
-            <div class="hint">link to an image or gif · recommended: 80×80px</div>
+            <label>profile picture <span style="color:#ff6b6b;opacity:0.6">*</span></label>
+            <img id="pfp-preview" class="pfp-preview" src="" alt="preview">
+            <div class="upload-row">
+                <button class="btn" id="pfp-upload-btn">upload image / gif</button>
+                <span class="upload-status" id="pfp-status"></span>
+                <input type="file" id="pfp-file" accept="image/*" style="display:none">
+            </div>
+            <div class="upload-progress" id="pfp-progress">
+                <div class="upload-progress-bar"><div class="upload-progress-fill" id="pfp-progress-fill"></div></div>
+            </div>
+            <div class="url-fallback">
+                <label>or paste a url</label>
+                <input type="url" id="avatar" placeholder="https://example.com/avatar.gif">
+            </div>
+        </div>
+    </div>
+
+    <!-- Background -->
+    <div class="card">
+        <div class="section-title">background</div>
+        <div class="bg-grid">
+            <div class="bg-option selected" data-bg="network" id="bg-network">
+                <div class="bg-option-name">network nodes</div>
+                <div class="bg-option-desc">floating particles with connecting lines · interactive on hover</div>
+            </div>
+            <div class="bg-option" data-bg="winter" id="bg-winter">
+                <div class="bg-option-name">pulse's winter</div>
+                <div class="bg-option-desc">warp-speed particles drifting top-left · inspired by pulse's page</div>
+            </div>
+        </div>
+        <input type="hidden" id="background" value="network">
+    </div>
+
+    <!-- Music -->
+    <div class="card">
+        <div class="section-title">music <span style="opacity:0.4">(optional)</span></div>
+        <div class="toggle-row">
+            <input type="checkbox" id="music-enabled">
+            <label for="music-enabled">enable music player on profile</label>
+        </div>
+        <div id="music-fields" style="display:none">
+            <div class="field">
+                <label>audio file</label>
+                <div class="upload-row">
+                    <button class="btn" id="music-upload-btn">upload audio</button>
+                    <span class="upload-status" id="music-status"></span>
+                    <input type="file" id="music-file" accept="audio/*" style="display:none">
+                </div>
+                <div class="upload-progress" id="music-progress">
+                    <div class="upload-progress-bar"><div class="upload-progress-fill" id="music-progress-fill"></div></div>
+                    <div class="upload-progress-label" id="music-progress-label"></div>
+                </div>
+                <input type="hidden" id="musicUrl">
+                <div class="hint">mp3 recommended · file is stored permanently on wrk.money</div>
+            </div>
+            <div class="field">
+                <label>track name</label>
+                <input type="text" id="musicTitle" placeholder="shown in the player on your profile" maxlength="80">
+            </div>
         </div>
     </div>
 
@@ -162,6 +242,112 @@
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...(opts.headers || {}) },
         });
     }
+
+    // ── File upload helper ────────────────────────────────────────────────────
+
+    function uploadFile(file, { progressWrap, progressFill, progressLabel, statusEl }, callback) {
+        progressWrap.style.display = 'block';
+        statusEl.textContent = 'uploading...';
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('ttl', 'never');
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://api.wrk.money/d');
+
+        xhr.upload.addEventListener('progress', e => {
+            if (e.lengthComputable) {
+                const pct = Math.round((e.loaded / e.total) * 100);
+                progressFill.style.width = `${pct}%`;
+                if (progressLabel) progressLabel.textContent = `${pct}%`;
+            }
+        });
+
+        xhr.addEventListener('load', () => {
+            progressWrap.style.display = 'none';
+            if (xhr.status >= 200 && xhr.status < 300) {
+                const data = JSON.parse(xhr.responseText);
+                statusEl.textContent = 'uploaded ✓';
+                callback(data.url);
+            } else {
+                statusEl.textContent = 'upload failed';
+            }
+        });
+
+        xhr.addEventListener('error', () => {
+            progressWrap.style.display = 'none';
+            statusEl.textContent = 'network error';
+        });
+
+        xhr.send(formData);
+    }
+
+    // ── Profile picture ───────────────────────────────────────────────────────
+
+    const pfpFileInput = document.getElementById('pfp-file');
+    const pfpPreview   = document.getElementById('pfp-preview');
+    const avatarInput  = document.getElementById('avatar');
+
+    document.getElementById('pfp-upload-btn').addEventListener('click', () => pfpFileInput.click());
+
+    pfpFileInput.addEventListener('change', () => {
+        const file = pfpFileInput.files[0];
+        if (!file) return;
+        uploadFile(file, {
+            progressWrap: document.getElementById('pfp-progress'),
+            progressFill: document.getElementById('pfp-progress-fill'),
+            progressLabel: null,
+            statusEl: document.getElementById('pfp-status'),
+        }, url => {
+            avatarInput.value = url;
+            pfpPreview.src = url;
+            pfpPreview.style.display = 'block';
+        });
+    });
+
+    avatarInput.addEventListener('input', () => {
+        const url = avatarInput.value.trim();
+        if (url) { pfpPreview.src = url; pfpPreview.style.display = 'block'; }
+        else { pfpPreview.style.display = 'none'; }
+    });
+
+    // ── Music ─────────────────────────────────────────────────────────────────
+
+    const musicEnabled = document.getElementById('music-enabled');
+    const musicFields  = document.getElementById('music-fields');
+    const musicFileInput = document.getElementById('music-file');
+
+    musicEnabled.addEventListener('change', () => {
+        musicFields.style.display = musicEnabled.checked ? 'block' : 'none';
+    });
+
+    document.getElementById('music-upload-btn').addEventListener('click', () => musicFileInput.click());
+
+    musicFileInput.addEventListener('change', () => {
+        const file = musicFileInput.files[0];
+        if (!file) return;
+        uploadFile(file, {
+            progressWrap: document.getElementById('music-progress'),
+            progressFill: document.getElementById('music-progress-fill'),
+            progressLabel: document.getElementById('music-progress-label'),
+            statusEl: document.getElementById('music-status'),
+        }, url => {
+            document.getElementById('musicUrl').value = url;
+            if (!document.getElementById('musicTitle').value) {
+                document.getElementById('musicTitle').value = file.name.replace(/\.[^/.]+$/, '');
+            }
+        });
+    });
+
+    // ── Background selector ───────────────────────────────────────────────────
+
+    document.querySelectorAll('.bg-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            document.querySelectorAll('.bg-option').forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+            document.getElementById('background').value = opt.dataset.bg;
+        });
+    });
 
     // ── Bio builder ───────────────────────────────────────────────────────────
 
@@ -245,9 +431,15 @@
             }).filter(b => b.text),
         })).filter(t => t.label);
 
+        const enabled = document.getElementById('music-enabled').checked;
+
         return {
             displayName: document.getElementById('displayName').value.trim(),
             avatar: document.getElementById('avatar').value.trim(),
+            background: document.getElementById('background').value || 'network',
+            musicEnabled: enabled,
+            musicUrl: enabled ? (document.getElementById('musicUrl').value.trim() || null) : null,
+            musicTitle: enabled ? (document.getElementById('musicTitle').value.trim() || null) : null,
             bioStatements,
             tabs,
             footer: document.getElementById('footer').value.trim(),
@@ -268,7 +460,6 @@
     saveBtn.addEventListener('click', async () => {
         const profile = collectProfile();
         saveBtn.disabled = true; saveBtn.textContent = 'saving...';
-
         try {
             const res = await authFetch(`/profile/${slug}`, {
                 method: 'PUT', body: JSON.stringify(profile),
@@ -294,8 +485,32 @@
             if (!profile) return;
 
             document.getElementById('displayName').value = profile.displayName || '';
-            document.getElementById('avatar').value = profile.avatar || '';
             document.getElementById('footer').value = profile.footer || '';
+
+            // Avatar
+            const avatarUrl = profile.avatar || '';
+            document.getElementById('avatar').value = avatarUrl;
+            if (avatarUrl) {
+                pfpPreview.src = avatarUrl;
+                pfpPreview.style.display = 'block';
+            }
+
+            // Background
+            const bg = profile.background || 'network';
+            document.getElementById('background').value = bg;
+            document.querySelectorAll('.bg-option').forEach(o => {
+                o.classList.toggle('selected', o.dataset.bg === bg);
+            });
+
+            // Music
+            if (profile.musicEnabled) {
+                musicEnabled.checked = true;
+                musicFields.style.display = 'block';
+                document.getElementById('musicUrl').value = profile.musicUrl || '';
+                document.getElementById('musicTitle').value = profile.musicTitle || '';
+                if (profile.musicUrl) document.getElementById('music-status').textContent = 'track uploaded ✓';
+            }
+
             (profile.bioStatements || []).forEach(s => addBioRow(s));
             (profile.tabs || []).forEach(t => addTabCard(t));
         } catch { window.location.href = '/login'; }

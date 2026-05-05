@@ -283,6 +283,10 @@ async function updateProfile(slug, req, env, corsHeaders) {
       }).filter(btn => btn.text),
     })).filter(tab => tab.label),
     footer: String(body.footer || '').trim().slice(0, 100),
+    background: ['network', 'winter'].includes(body.background) ? body.background : (existing.background || 'network'),
+    musicEnabled: !!body.musicEnabled,
+    musicUrl: body.musicEnabled ? String(body.musicUrl || '').trim().slice(0, 500) || null : null,
+    musicTitle: body.musicEnabled ? String(body.musicTitle || '').trim().slice(0, 80) || null : null,
     updatedAt: Date.now(),
   };
 
