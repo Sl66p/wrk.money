@@ -72,7 +72,7 @@
             <label>your profile link</label>
             <div class="slug-row">
                 <span class="slug-prefix">wrk.money/</span>
-                <input type="text" id="slug" placeholder="yourslug" autocomplete="username">
+                <input type="text" id="slug" placeholder="yourslug or $$$" autocomplete="username" spellcheck="false">
             </div>
         </div>
         <div class="field">
@@ -116,9 +116,9 @@
     const submitBtn = document.getElementById('submit');
     const errorEl   = document.getElementById('error');
 
-    // sanitize slug input live
-    slugEl.addEventListener('input', () => {
-        slugEl.value = slugEl.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    // trim whitespace only — allow $, letters, numbers, etc.
+    slugEl.addEventListener('blur', () => {
+        slugEl.value = slugEl.value.trim();
     });
 
     async function doSetup() {

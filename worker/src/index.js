@@ -184,7 +184,7 @@ async function setupAccount(req, env, corsHeaders) {
   if (!body?.slug || !body?.password) return err('slug and password required', 400, corsHeaders);
   if (body.password.length < 8) return err('password must be at least 8 characters', 400, corsHeaders);
 
-  const slug = body.slug.toLowerCase().trim();
+  const slug = body.slug.trim();
   const user = await env.WRK_KV.get(`user:${slug}`, { type: 'json' });
   if (!user) return err('no account found for that slug', 404, corsHeaders);
   if (user.passwordHash) return err('account already claimed', 409, corsHeaders);
@@ -208,14 +208,8 @@ async function register(req, env, corsHeaders) {
   const body = await req.json().catch(() => null);
   if (!body?.username) return err('username required', 400, corsHeaders);
 
-  const username = body.username.toLowerCase().trim();
-  const slug = (body.slug || username).toLowerCase().trim();
-
-  const slugErr = validateSlug(slug);
-  if (slugErr) return err(slugErr, 400, corsHeaders);
-
-  if (username.length < 3) return err('username must be at least 3 characters', 400, corsHeaders);
-  if (!/^[a-z0-9_-]+$/.test(username)) return err('username may only contain lowercase letters, numbers, underscores, and hyphens', 400, corsHeaders);
+  const username = body.username.trim();
+  const slug = (body.slug || username).trim();
 
   const existingUser = await env.WRK_KV.get(`user:${username}`);
   if (existingUser) return err('username already taken', 409, corsHeaders);
