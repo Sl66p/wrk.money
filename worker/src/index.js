@@ -378,7 +378,7 @@ async function uploadFile(req, env, corsHeaders) {
   const kvOpts = ttl ? { expirationTtl: ttl } : {};
   await env.WRK_KV.put(`d:${id}`, JSON.stringify(meta), kvOpts);
   await incrementUsage(env, { storageBytes: file.size, classA: 1 });
-  return json({ id, url: `https://wrk.money/d/?id=${id}` }, 201, corsHeaders);
+  return json({ id, url: `https://wrk.money/d/?id=${id}`, rawUrl: `https://api.wrk.money/d/${id}` }, 201, corsHeaders);
 }
 
 async function getFileMeta(id, env, corsHeaders) {
@@ -407,10 +407,11 @@ async function getFile(id, env, corsHeaders) {
   await incrementUsage(env, { classB: 1 });
   if (!obj) return err('file not found', 404, corsHeaders);
 
+  const isInline = meta.type.startsWith('image/') || meta.type.startsWith('audio/') || meta.type.startsWith('video/');
   return new Response(obj.body, {
     headers: {
       'Content-Type': meta.type,
-      'Content-Disposition': `attachment; filename="${meta.name}"`,
+      'Content-Disposition': isInline ? `inline; filename="${meta.name}"` : `attachment; filename="${meta.name}"`,
       ...corsHeaders,
     },
   });

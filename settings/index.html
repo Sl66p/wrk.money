@@ -268,7 +268,7 @@
             if (xhr.status >= 200 && xhr.status < 300) {
                 const data = JSON.parse(xhr.responseText);
                 statusEl.textContent = 'uploaded ✓';
-                callback(data.url);
+                callback(data.rawUrl);
             } else {
                 statusEl.textContent = 'upload failed';
             }
