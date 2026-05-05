@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>file | wrk.money</title>
+    <meta name="theme-color" content="#0a0a0a">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/wrk_files/999circle.png" type="image/png">
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JetBrains Mono', monospace; }
+
+        body {
+            background-color: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            padding: 60px 20px;
+            position: relative;
+        }
+
+        #tsparticles {
+            position: fixed;
+            width: 100%; height: 100%;
+            top: 0; left: 0;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .back-link {
+            display: inline-block;
+            font-size: 0.65rem;
+            opacity: 0.3;
+            letter-spacing: 2px;
+            text-decoration: none;
+            color: #fff;
+            margin-bottom: 40px;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.7; }
+
+        .file-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 36px 28px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            margin-bottom: 16px;
+        }
+
+        .file-icon {
+            font-size: 2rem;
+            opacity: 0.15;
+            margin-bottom: 20px;
+        }
+
+        .file-name-display {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .file-meta {
+            font-size: 0.6rem;
+            opacity: 0.3;
+            letter-spacing: 2px;
+            margin-bottom: 28px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: lowercase;
+            padding: 12px 32px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .download-btn:hover {
+            background: rgba(255,255,255,0.13);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .expires-label {
+            font-size: 0.6rem;
+            opacity: 0.2;
+            letter-spacing: 1px;
+            margin-top: 14px;
+        }
+
+        .loading {
+            font-size: 0.75rem;
+            opacity: 0.3;
+            letter-spacing: 2px;
+            padding: 60px 0;
+        }
+
+        .error-state { display: none; }
+        .error-state.visible { display: block; }
+        .error-state h2 {
+            font-size: 1rem;
+            opacity: 0.5;
+            letter-spacing: 3px;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        .new-btn {
+            display: inline-block;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: #fff;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            padding: 8px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .new-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        .console-footer {
+            position: fixed;
+            bottom: 30px;
+            font-size: 0.6rem;
+            opacity: 0.2;
+            letter-spacing: 4px;
+            width: 100%;
+            text-align: center;
+            left: 0;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div id="tsparticles"></div>
+
+<div class="container">
+    <a href="/tools/fileshare" class="back-link">← file share</a>
+
+    <div id="loading" class="loading">loading...</div>
+
+    <div id="error-state" class="error-state">
+        <h2>file not found or expired</h2>
+        <a href="/tools/fileshare" class="new-btn">upload a file</a>
+    </div>
+
+    <div id="file-view" style="display:none">
+        <div class="file-card">
+            <div class="file-icon">↓</div>
+            <div class="file-name-display" id="file-name"></div>
+            <div class="file-meta" id="file-meta"></div>
+            <a class="download-btn" id="download-btn" href="#">download</a>
+        </div>
+        <div class="expires-label" id="expires-label"></div>
+    </div>
+</div>
+
+<div class="console-footer">FILE.VIEW // WRK_03</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.12.0/tsparticles.bundle.min.js"></script>
+<script>
+    tsParticles.load("tsparticles", {
+        particles: {
+            number: { value: 80, density: { enable: true, area: 800 } },
+            color: { value: "#ffffff" },
+            shape: { type: "circle" },
+            opacity: { value: 0.3 },
+            size: { value: { min: 1, max: 3 } },
+            links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.2, width: 1 },
+            move: { enable: true, speed: 1, direction: "none", outModes: { default: "out" } }
+        },
+        interactivity: {
+            events: { onHover: { enable: true, mode: "grab" }, onClick: { enable: true, mode: "push" } },
+            modes: { grab: { distance: 140, links: { opacity: 0.5 } }, push: { quantity: 4 } }
+        },
+        retina_detect: true
+    });
+
+    function formatBytes(bytes) {
+        if (bytes < 1024) return `${bytes} b`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} kb`;
+        return `${(bytes / 1024 / 1024).toFixed(1)} mb`;
+    }
+
+    const id = new URLSearchParams(window.location.search).get('id');
+    const loadingEl = document.getElementById('loading');
+    const errorEl = document.getElementById('error-state');
+    const fileView = document.getElementById('file-view');
+
+    async function loadFile() {
+        if (!id) {
+            loadingEl.style.display = 'none';
+            errorEl.classList.add('visible');
+            return;
+        }
+
+        try {
+            const res = await fetch(`https://api.wrk.money/d/${id}/meta`);
+            if (!res.ok) throw new Error();
+            const meta = await res.json();
+
+            document.getElementById('file-name').textContent = meta.name;
+            document.getElementById('file-meta').textContent = `${formatBytes(meta.size)} · ${meta.type}`;
+            document.getElementById('download-btn').href = `https://api.wrk.money/d/${id}`;
+            document.title = `${meta.name} | wrk.money`;
+
+            if (meta.expiresAt) {
+                const exp = new Date(meta.expiresAt);
+                document.getElementById('expires-label').textContent =
+                    `expires ${exp.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+            }
+
+            loadingEl.style.display = 'none';
+            fileView.style.display = 'block';
+        } catch {
+            loadingEl.style.display = 'none';
+            errorEl.classList.add('visible');
+        }
+    }
+
+    loadFile();
+</script>
+</body>
+</html>
