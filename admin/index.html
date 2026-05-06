@@ -62,6 +62,9 @@
         .badge-toggle:hover:not(:disabled) { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); }
         .badge-toggle.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.45); color: #fff; }
         .badge-toggle:disabled { opacity: 0.3; cursor: not-allowed; }
+        .uid-input { width: 44px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; padding: 3px 6px; border-radius: 3px; text-align: center; }
+        .uid-input:focus { outline: none; border-color: rgba(255,255,255,0.35); color: #fff; }
+        .uid-input::placeholder { opacity: 0.4; }
         .empty { font-size: 0.7rem; opacity: 0.25; letter-spacing: 1px; text-align: center; padding: 20px 0; }
         .gate { text-align: center; padding: 60px 0; }
         .gate p { font-size: 0.7rem; opacity: 0.4; letter-spacing: 2px; margin-bottom: 20px; }
@@ -184,9 +187,10 @@
             <div class="user-row">
                 <div>
                     <div>${u.username} <span style="font-size:0.55rem;opacity:0.35;letter-spacing:1px">${u.claimed ? '· claimed' : '· unclaimed'}</span></div>
-                    <div class="slug">wrk.money/${u.slug}${u.uid !== null && u.uid !== undefined ? ' · <span style="opacity:0.5">#' + u.uid + '</span>' : ''}</div>
+                    <div class="slug">wrk.money/${u.slug}</div>
                 </div>
                 <div class="badge-toggles">
+                    <input class="uid-input" type="number" value="${u.uid !== null && u.uid !== undefined ? u.uid : ''}" placeholder="uid" data-slug="${u.slug}" title="set uid · press enter to save">
                     <button class="badge-toggle${badges.includes('admin') ? ' active' : ''}" data-badge="admin" data-slug="${u.slug}">admin</button>
                     <button class="badge-toggle${badges.includes('early') ? ' active' : ''}" data-badge="early" data-slug="${u.slug}">early</button>
                     <button class="badge-toggle${badges.includes('tester') ? ' active' : ''}" data-badge="tester" data-slug="${u.slug}">tester</button>
@@ -196,6 +200,22 @@
             </div>`;
         }).join('');
     }
+
+    document.getElementById('user-list').addEventListener('keydown', async e => {
+        if (e.key !== 'Enter') return;
+        const input = e.target.closest('.uid-input');
+        if (!input) return;
+        e.preventDefault();
+        const slug = input.dataset.slug;
+        const uid = input.value === '' ? null : parseInt(input.value);
+        if (uid === null || isNaN(uid)) return;
+        input.disabled = true;
+        try {
+            const res = await apiCall('/admin/uid', { method: 'PUT', body: JSON.stringify({ slug, uid }) });
+            if (res.ok) { input.style.color = '#6bff9e'; setTimeout(() => { input.style.color = ''; }, 1000); }
+            else { const d = await res.json(); input.style.color = '#ff6b6b'; alert(d.error); }
+        } finally { input.disabled = false; }
+    });
 
     document.getElementById('user-list').addEventListener('click', async e => {
         const btn = e.target.closest('.badge-toggle');
