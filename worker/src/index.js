@@ -48,6 +48,17 @@ function err(msg, status = 400, extraHeaders = {}) {
   return json({ error: msg }, status, extraHeaders);
 }
 
+function toRawFileUrl(url) {
+  try {
+    const u = new URL(url);
+    if (u.hostname === 'wrk.money' && u.pathname === '/d/') {
+      const id = u.searchParams.get('id');
+      if (id) return `https://api.wrk.money/d/${id}`;
+    }
+  } catch {}
+  return url;
+}
+
 // ── Rate limiting ─────────────────────────────────────────────────────────────
 
 async function checkRateLimit(env, ip) {
@@ -249,7 +260,15 @@ async function getMe(req, env, corsHeaders) {
 async function getProfile(slug, env, corsHeaders) {
   const profile = await env.WRK_KV.get(`profile:${slug}`, { type: 'json' });
   if (!profile) return err('profile not found', 404, corsHeaders);
-  return json(profile, 200, corsHeaders);
+  const visits = parseInt(await env.WRK_KV.get(`visits:${slug}`) || '0');
+  return json({ ...profile, visits }, 200, corsHeaders);
+}
+
+async function recordVisit(slug, env, corsHeaders) {
+  const key = `visits:${slug}`;
+  const count = parseInt(await env.WRK_KV.get(key) || '0') + 1;
+  await env.WRK_KV.put(key, String(count));
+  return json({ visits: count }, 200, corsHeaders);
 }
 
 async function updateProfile(slug, req, env, corsHeaders) {
@@ -271,7 +290,7 @@ async function updateProfile(slug, req, env, corsHeaders) {
   const updated = {
     ...existing,
     displayName: body.displayName.trim().slice(0, 50),
-    avatar: body.avatar.trim().slice(0, 500),
+    avatar: toRawFileUrl(body.avatar.trim()).slice(0, 500),
     bioStatements: body.bioStatements.map(s => String(s).trim()).filter(Boolean).slice(0, 10),
     tabs: (body.tabs || []).slice(0, 8).map(tab => ({
       label: String(tab.label || '').trim().slice(0, 30),
@@ -283,9 +302,12 @@ async function updateProfile(slug, req, env, corsHeaders) {
       }).filter(btn => btn.text),
     })).filter(tab => tab.label),
     footer: String(body.footer || '').trim().slice(0, 100),
-    background: ['network', 'winter'].includes(body.background) ? body.background : (existing.background || 'network'),
+    background: ['network', 'winter', 'starfield', 'matrix'].includes(body.background) ? body.background : (existing.background || 'network'),
+    ogTitle: String(body.ogTitle || '').trim().slice(0, 60) || null,
+    ogDescription: String(body.ogDescription || '').trim().slice(0, 200) || null,
+    ogImage: toRawFileUrl(String(body.ogImage || '').trim()).slice(0, 500) || null,
     musicEnabled: !!body.musicEnabled,
-    musicUrl: body.musicEnabled ? String(body.musicUrl || '').trim().slice(0, 500) || null : null,
+    musicUrl: body.musicEnabled ? toRawFileUrl(String(body.musicUrl || '').trim()).slice(0, 500) || null : null,
     musicTitle: body.musicEnabled ? String(body.musicTitle || '').trim().slice(0, 80) || null : null,
     updatedAt: Date.now(),
   };
@@ -294,13 +316,27 @@ async function updateProfile(slug, req, env, corsHeaders) {
   return json(updated, 200, corsHeaders);
 }
 
+async function putBadges(slug, req, env, corsHeaders) {
+  if (!requireAdmin(req, env)) return err('forbidden', 403, corsHeaders);
+  const profile = await env.WRK_KV.get(`profile:${slug}`, { type: 'json' });
+  if (!profile) return err('profile not found', 404, corsHeaders);
+  const body = await req.json().catch(() => null);
+  if (!body || !Array.isArray(body.badges)) return err('badges array required', 400, corsHeaders);
+  const ALLOWED = new Set(['admin', 'early', 'tester', 'developer']);
+  const badges = [...new Set(body.badges.filter(b => ALLOWED.has(b)))];
+  await env.WRK_KV.put(`profile:${slug}`, JSON.stringify({ ...profile, badges }));
+  return json({ slug, badges }, 200, corsHeaders);
+}
+
 async function listUsers(req, env, corsHeaders) {
   if (!requireAdmin(req, env)) return err('forbidden', 403, corsHeaders);
   const list = await env.WRK_KV.list({ prefix: 'user:' });
   const users = await Promise.all(
     list.keys.map(async k => {
       const u = await env.WRK_KV.get(k.name, { type: 'json' });
-      return u ? { username: u.username, slug: u.slug, claimed: !!u.passwordHash, createdAt: u.createdAt } : null;
+      if (!u) return null;
+      const profile = await env.WRK_KV.get(`profile:${u.slug}`, { type: 'json' });
+      return { username: u.username, slug: u.slug, claimed: !!u.passwordHash, createdAt: u.createdAt, badges: profile?.badges || [] };
     })
   );
   return json(users.filter(Boolean), 200, corsHeaders);
@@ -485,7 +521,9 @@ export default {
       return updateProfile(path.slice(9), req, env, corsHeaders);
 
     // Admin
-    if (req.method === 'GET' && path === '/admin/users') return listUsers(req, env, corsHeaders);
+    if (req.method === 'GET'  && path === '/admin/users')           return listUsers(req, env, corsHeaders);
+    if (req.method === 'POST' && path.startsWith('/visit/'))        return recordVisit(path.slice(7), env, corsHeaders);
+    if (req.method === 'PUT'  && path.startsWith('/admin/badges/')) return putBadges(path.slice(14), req, env, corsHeaders);
 
     // Pastebin
     if (req.method === 'POST' && path === '/p') return createPaste(req, env, corsHeaders);

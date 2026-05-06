@@ -148,8 +148,33 @@
                 <div class="bg-option-name">pulse's winter</div>
                 <div class="bg-option-desc">warp-speed particles drifting top-left · inspired by pulse's page</div>
             </div>
+            <div class="bg-option" data-bg="starfield" id="bg-starfield">
+                <div class="bg-option-name">starfield</div>
+                <div class="bg-option-desc">slow drifting stars with subtle opacity pulse · deep space feel</div>
+            </div>
+            <div class="bg-option" data-bg="matrix" id="bg-matrix">
+                <div class="bg-option-name">matrix</div>
+                <div class="bg-option-desc">falling characters in white · monochrome digital rain</div>
+            </div>
         </div>
         <input type="hidden" id="background" value="network">
+    </div>
+
+    <!-- OG / Social preview -->
+    <div class="card">
+        <div class="section-title">embed / social preview</div>
+        <div class="field">
+            <label>title <span style="opacity:0.3">(defaults to display name)</span></label>
+            <input type="text" id="ogTitle" placeholder="leave blank to use display name" maxlength="60">
+        </div>
+        <div class="field">
+            <label>description <span style="opacity:0.3">(defaults to first bio line)</span></label>
+            <input type="text" id="ogDescription" placeholder="leave blank to use first bio" maxlength="200">
+        </div>
+        <div class="field">
+            <label>image url <span style="opacity:0.3">(defaults to profile picture)</span></label>
+            <input type="url" id="ogImage" placeholder="leave blank to use profile picture">
+        </div>
     </div>
 
     <!-- Music -->
@@ -443,6 +468,9 @@
             bioStatements,
             tabs,
             footer: document.getElementById('footer').value.trim(),
+            ogTitle: document.getElementById('ogTitle').value.trim() || null,
+            ogDescription: document.getElementById('ogDescription').value.trim() || null,
+            ogImage: document.getElementById('ogImage').value.trim() || null,
         };
     }
 
@@ -510,6 +538,10 @@
                 document.getElementById('musicTitle').value = profile.musicTitle || '';
                 if (profile.musicUrl) document.getElementById('music-status').textContent = 'track uploaded ✓';
             }
+
+            document.getElementById('ogTitle').value = profile.ogTitle || '';
+            document.getElementById('ogDescription').value = profile.ogDescription || '';
+            document.getElementById('ogImage').value = profile.ogImage || '';
 
             (profile.bioStatements || []).forEach(s => addBioRow(s));
             (profile.tabs || []).forEach(t => addTabCard(t));
