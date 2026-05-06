@@ -113,6 +113,7 @@
 
         #matrix-bg { display: none; position: fixed; inset: 0; z-index: 0; }
         .visit-count { font-size: 0.5rem; opacity: 0.15; letter-spacing: 2px; text-align: right; margin-top: 10px; }
+        .uid-label { font-size: 0.5rem; opacity: 0.2; letter-spacing: 3px; margin-top: 4px; }
         header {
             position: relative;
             background: var(--glass);
@@ -372,6 +373,7 @@
                 </div>
             </div>
             <text>aka wrk, sleep, slept, terpenoid, wakenbake, deathwish, typhoon, & up4i</text>
+            <div id="p-uid" class="uid-label"></div>
             <div class="typewriter-container">
                 <span id="typewriter"></span><span id="cursor"></span>
             </div>
@@ -528,6 +530,7 @@
                 if (res.ok) {
                     const p = await res.json();
                     if (p.avatar) document.querySelector('.pfp').src = p.avatar;
+                    if (p.uid !== undefined && p.uid !== null) document.getElementById('p-uid').textContent = '#' + p.uid;
                     if (p.badges?.length) {
                         document.querySelectorAll('.badge-container[data-system]').forEach(b => b.remove());
                         p.badges.forEach(id => {

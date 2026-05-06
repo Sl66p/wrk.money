@@ -104,7 +104,10 @@
 <div id="tsparticles"></div>
 <div class="container">
     <div class="top-row">
-        <h1>settings</h1>
+        <div>
+            <h1>settings</h1>
+            <div id="uid-display" style="font-size:0.55rem;opacity:0.25;letter-spacing:3px;margin-top:4px;"></div>
+        </div>
         <div class="top-actions">
             <a id="preview-link" href="#" target="_blank" class="btn">preview ↗</a>
             <button class="btn btn-danger" id="logout-btn">logout</button>
@@ -512,6 +515,8 @@
             const { profile } = await res.json();
             if (!profile) return;
 
+            if (profile.uid !== undefined && profile.uid !== null)
+                document.getElementById('uid-display').textContent = '#' + profile.uid;
             document.getElementById('displayName').value = profile.displayName || '';
             document.getElementById('footer').value = profile.footer || '';
 
