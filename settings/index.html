@@ -516,7 +516,7 @@
             if (!profile) return;
 
             if (profile.uid !== undefined && profile.uid !== null)
-                document.getElementById('uid-display').textContent = '#' + profile.uid;
+                document.getElementById('uid-display').textContent = 'UID #' + profile.uid;
             document.getElementById('displayName').value = profile.displayName || '';
             document.getElementById('footer').value = profile.footer || '';
 

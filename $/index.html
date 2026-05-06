@@ -530,7 +530,7 @@
                 if (res.ok) {
                     const p = await res.json();
                     if (p.avatar) document.querySelector('.pfp').src = p.avatar;
-                    if (p.uid !== undefined && p.uid !== null) document.getElementById('p-uid').textContent = '#' + p.uid;
+                    if (p.uid !== undefined && p.uid !== null) document.getElementById('p-uid').textContent = 'UID #' + p.uid;
                     if (p.badges?.length) {
                         document.querySelectorAll('.badge-container[data-system]').forEach(b => b.remove());
                         p.badges.forEach(id => {

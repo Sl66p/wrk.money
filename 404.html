@@ -205,7 +205,7 @@
         document.getElementById('p-pfp').alt = profile.displayName;
         document.getElementById('p-name').textContent = profile.displayName;
         if (profile.uid !== undefined && profile.uid !== null)
-            document.getElementById('p-uid').textContent = '#' + profile.uid;
+            document.getElementById('p-uid').textContent = 'UID #' + profile.uid;
 
         const BADGE_DEFS = {
             admin:     { src: '/wrk_files/badge-admin.svg',     label: 'administrator' },
