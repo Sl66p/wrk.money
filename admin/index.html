@@ -52,6 +52,16 @@
         .user-row .slug { opacity: 0.4; font-size: 0.65rem; }
         .user-row a { color: rgba(255,255,255,0.4); font-size: 0.6rem; text-decoration: none; letter-spacing: 1px; transition: opacity 0.2s; }
         .user-row a:hover { color: #fff; }
+        .badge-toggles { display: flex; gap: 4px; }
+        .badge-toggle {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.25); font-family: 'JetBrains Mono', monospace;
+            font-size: 0.55rem; letter-spacing: 1px; padding: 3px 8px;
+            border-radius: 3px; cursor: pointer; transition: all 0.2s;
+        }
+        .badge-toggle:hover:not(:disabled) { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); }
+        .badge-toggle.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.45); color: #fff; }
+        .badge-toggle:disabled { opacity: 0.3; cursor: not-allowed; }
         .empty { font-size: 0.7rem; opacity: 0.25; letter-spacing: 1px; text-align: center; padding: 20px 0; }
         .gate { text-align: center; padding: 60px 0; }
         .gate p { font-size: 0.7rem; opacity: 0.4; letter-spacing: 2px; margin-bottom: 20px; }
@@ -168,16 +178,42 @@
     function renderUsers(users) {
         const listEl = document.getElementById('user-list');
         if (!users.length) { listEl.innerHTML = '<div class="empty">no accounts yet</div>'; return; }
-        listEl.innerHTML = users.map(u => `
+        listEl.innerHTML = users.map(u => {
+            const badges = u.badges || [];
+            return `
             <div class="user-row">
                 <div>
                     <div>${u.username} <span style="font-size:0.55rem;opacity:0.35;letter-spacing:1px">${u.claimed ? '· claimed' : '· unclaimed'}</span></div>
                     <div class="slug">wrk.money/${u.slug}</div>
                 </div>
+                <div class="badge-toggles">
+                    <button class="badge-toggle${badges.includes('admin') ? ' active' : ''}" data-badge="admin" data-slug="${u.slug}">admin</button>
+                    <button class="badge-toggle${badges.includes('early') ? ' active' : ''}" data-badge="early" data-slug="${u.slug}">early</button>
+                </div>
                 <a href="https://wrk.money/${u.slug}" target="_blank">view →</a>
-            </div>
-        `).join('');
+            </div>`;
+        }).join('');
     }
+
+    document.getElementById('user-list').addEventListener('click', async e => {
+        const btn = e.target.closest('.badge-toggle');
+        if (!btn) return;
+        const slug = btn.dataset.slug;
+        const badge = btn.dataset.badge;
+        const row = btn.closest('.user-row');
+        const isActive = btn.classList.contains('active');
+        const allToggles = row.querySelectorAll('.badge-toggle');
+        let badges = Array.from(allToggles).filter(b => b.classList.contains('active')).map(b => b.dataset.badge);
+        if (isActive) badges = badges.filter(b => b !== badge);
+        else badges.push(badge);
+        row.querySelectorAll('.badge-toggle').forEach(b => b.disabled = true);
+        try {
+            const res = await apiCall(`/admin/badges/${slug}`, { method: 'PUT', body: JSON.stringify({ badges }) });
+            if (res.ok) btn.classList.toggle('active', !isActive);
+        } finally {
+            row.querySelectorAll('.badge-toggle').forEach(b => b.disabled = false);
+        }
+    });
 
     document.getElementById('unlock-btn').addEventListener('click', unlock);
     document.getElementById('secret-input').addEventListener('keydown', e => { if (e.key === 'Enter') unlock(); });
