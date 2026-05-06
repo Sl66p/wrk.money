@@ -155,6 +155,22 @@
             left: 0;
             z-index: 1;
         }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .preview-audio {
+            width: 100%;
+            margin-bottom: 20px;
+            accent-color: rgba(255,255,255,0.6);
+        }
     </style>
 </head>
 <body>
@@ -172,7 +188,11 @@
     </div>
 
     <div id="file-view" style="display:none">
+        <img id="preview-image" class="preview-image" style="display:none" alt="">
         <div class="file-card">
+            <div id="preview-audio-wrap" style="display:none">
+                <audio id="preview-audio" class="preview-audio" controls></audio>
+            </div>
             <div class="file-icon">↓</div>
             <div class="file-name-display" id="file-name"></div>
             <div class="file-meta" id="file-meta"></div>
@@ -226,10 +246,22 @@
             if (!res.ok) throw new Error();
             const meta = await res.json();
 
+            const rawUrl = `https://api.wrk.money/d/${id}`;
             document.getElementById('file-name').textContent = meta.name;
             document.getElementById('file-meta').textContent = `${formatBytes(meta.size)} · ${meta.type}`;
-            document.getElementById('download-btn').href = `https://api.wrk.money/d/${id}`;
+            document.getElementById('download-btn').href = rawUrl;
             document.title = `${meta.name} | wrk.money`;
+
+            if (meta.type.startsWith('image/')) {
+                const img = document.getElementById('preview-image');
+                img.src = rawUrl;
+                img.alt = meta.name;
+                img.style.display = 'block';
+            } else if (meta.type.startsWith('audio/')) {
+                const wrap = document.getElementById('preview-audio-wrap');
+                document.getElementById('preview-audio').src = rawUrl;
+                wrap.style.display = 'block';
+            }
 
             if (meta.expiresAt) {
                 const exp = new Date(meta.expiresAt);
