@@ -190,9 +190,10 @@
         document.getElementById('p-name').textContent = profile.displayName;
 
         const BADGE_DEFS = {
-            admin:  { src: '/wrk_files/badge-admin.svg',  label: 'administrator' },
-            early:  { src: '/wrk_files/badge-early.svg',  label: 'early starter' },
-            tester: { src: '/wrk_files/badge-tester.svg', label: 'tester' },
+            admin:     { src: '/wrk_files/badge-admin.svg',     label: 'administrator' },
+            early:     { src: '/wrk_files/badge-early.svg',     label: 'early starter' },
+            tester:    { src: '/wrk_files/badge-tester.svg',    label: 'tester' },
+            developer: { src: '/wrk_files/badge-developer.svg', label: 'developer' },
         };
         const badgesEl = document.getElementById('p-badges');
         (profile.badges || []).forEach(id => {
