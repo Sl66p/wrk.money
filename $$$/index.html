@@ -111,7 +111,10 @@
             transform: translateY(0);
         }
 
+        #matrix-bg { display: none; position: fixed; inset: 0; z-index: 0; }
+        .visit-count { font-size: 0.5rem; opacity: 0.15; letter-spacing: 2px; text-align: right; margin-top: 10px; }
         header {
+            position: relative;
             background: var(--glass);
             border: 1px solid var(--border);
             border-radius: 4px;
@@ -318,6 +321,7 @@
 </head>
 <body>
 
+    <canvas id="matrix-bg"></canvas>
     <div id="enter-overlay">
         <div class="enter-text">[ click to enter ]</div>
     </div>
@@ -335,7 +339,7 @@
                     </a>
                     <span class="tooltip">Cupid Charm #22005</span>
                 </div>
-                <div class="badge-container">
+                <div class="badge-container" data-system="1">
                     <img src="/wrk_files/badge-admin.svg" alt="Administrator" class="badge-img">
                     <span class="tooltip">administrator</span>
                 </div>
@@ -377,7 +381,6 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.12.0/tsparticles.bundle.min.js"></script>
-    
     <script>
         const audio = document.getElementById('audio');
         const overlay = document.getElementById('enter-overlay');
@@ -392,8 +395,7 @@
         overlay.addEventListener('click', () => {
             overlay.classList.add('hidden');
             content.classList.add('visible');
-            audio.play();
-            playBtn.textContent = '||';
+            audio.play(); playBtn.textContent = '||';
             setTimeout(type, 1000);
         });
 
@@ -402,22 +404,11 @@
             else { audio.pause(); playBtn.textContent = '|>'; }
         });
 
-        volumeSlider.addEventListener('input', (e) => {
-            audio.volume = e.target.value;
-        });
+        volumeSlider.addEventListener('input', e => { audio.volume = e.target.value; });
+        audio.addEventListener('timeupdate', () => { progressBar.style.width = `${(audio.currentTime / audio.duration) * 100}%`; });
+        progressContainer.addEventListener('click', e => { audio.currentTime = (e.offsetX / progressContainer.clientWidth) * audio.duration; });
 
-        audio.addEventListener('timeupdate', () => {
-            const percent = (audio.currentTime / audio.duration) * 100;
-            progressBar.style.width = `${percent}%`;
-        });
-
-        progressContainer.addEventListener('click', (e) => {
-            const width = progressContainer.clientWidth;
-            const clickX = e.offsetX;
-            audio.currentTime = (clickX / width) * audio.duration;
-        });
-
-        const phrases = ["trying to live in gods image.", "i wanna change the world.", "9994l"];
+        let phrases = ["trying to live in gods image.", "i wanna change the world.", "9994l"];
         let pIdx = 0, cIdx = 0, isDeleting = false;
         const target = document.getElementById('typewriter');
 
@@ -429,68 +420,128 @@
             else { setTimeout(type, isDeleting ? 40 : 80); }
         }
 
-        // Warp Speed Logic
-        tsParticles.load("tsparticles", {
-            fpsLimit: 120,
-            particles: {
-                number: { value: 150, density: { enable: true, area: 800 } },
-                color: { value: "#ffffff" },
-                shape: { type: "circle" },
-                opacity: {
-                    value: { min: 0.1, max: 0.8 },
-                    animation: { enable: true, speed: 1, sync: false }
-                },
-                size: {
-                    value: { min: 0.5, max: 3 },
-                    animation: { enable: true, speed: 5, sync: false, startValue: "min" }
-                },
-                move: {
-                    enable: true,
-                    speed: { min: 3, max: 10 },
-                    direction: "top-left",
-                    outModes: { default: "out" },
-                    attract: { enable: true, rotate: { x: 600, y: 1200 } }
-                }
-            },
-            retina_detect: true
-        });
-        // --- TAB TITLE ANIMATOR (Consistent Speed) ---
-(function() {
-    const tabWords = ["pulse"];
-    let wordIdx = 0;
-    let charIdx = 0;
-    let isRev = false;
-    const baseSpeed = 300; // Set both type and delete speed here (in ms)
-
-    function updateTab() {
-        const fullWord = tabWords[wordIdx];
-        const prefix = "@";
-        
-        // Render the title
-        document.title = prefix + fullWord.substring(0, charIdx);
-
-        if (!isRev) {
-            if (charIdx < fullWord.length) {
-                charIdx++;
-                setTimeout(updateTab, baseSpeed); 
-            } else {
-                isRev = true;
-                setTimeout(updateTab, 2000); // Pause on full word
-            }
-        } else {
-            if (charIdx > 0) {
-                charIdx--;
-                setTimeout(updateTab, baseSpeed); // Same speed as typing
-            } else {
-                isRev = false;
-                wordIdx = (wordIdx + 1) % tabWords.length;
-                setTimeout(updateTab, 500); // Small pause before next word
-            }
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('copy-toast');
+                if (toast) { toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
+            });
         }
-    }
 
-    updateTab();
-})();
+        (function() {
+            const tabWords = ["pulse"];
+            let wordIdx = 0, charIdx = 0, isRev = false;
+            function updateTab() {
+                document.title = '@' + tabWords[wordIdx].substring(0, charIdx);
+                if (!isRev) {
+                    if (charIdx < tabWords[wordIdx].length) { charIdx++; setTimeout(updateTab, 300); }
+                    else { isRev = true; setTimeout(updateTab, 2000); }
+                } else {
+                    if (charIdx > 0) { charIdx--; setTimeout(updateTab, 300); }
+                    else { isRev = false; wordIdx = (wordIdx + 1) % tabWords.length; setTimeout(updateTab, 500); }
+                }
+            }
+            updateTab();
+        })();
+
+        const bgConfigs = {
+            network: { particles: { number: { value: 80, density: { enable: true, area: 800 } }, color: { value: "#ffffff" }, shape: { type: "circle" }, opacity: { value: 0.3 }, size: { value: { min: 1, max: 3 } }, links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.2, width: 1 }, move: { enable: true, speed: 1, direction: "none", outModes: { default: "out" } } }, interactivity: { events: { onHover: { enable: true, mode: "grab" }, onClick: { enable: true, mode: "push" } }, modes: { grab: { distance: 140, links: { opacity: 0.5 } }, push: { quantity: 4 } } }, retina_detect: true },
+            winter: { fpsLimit: 120, particles: { number: { value: 150, density: { enable: true, area: 800 } }, color: { value: "#ffffff" }, shape: { type: "circle" }, opacity: { value: { min: 0.1, max: 0.8 }, animation: { enable: true, speed: 1, sync: false } }, size: { value: { min: 0.5, max: 3 }, animation: { enable: true, speed: 5, sync: false, startValue: "min" } }, move: { enable: true, speed: { min: 3, max: 10 }, direction: "top-left", outModes: { default: "out" }, attract: { enable: true, rotate: { x: 600, y: 1200 } } } }, retina_detect: true },
+            starfield: { fpsLimit: 60, particles: { number: { value: 200 }, color: { value: "#ffffff" }, shape: { type: "circle" }, opacity: { value: { min: 0.05, max: 0.7 }, animation: { enable: true, speed: 0.4, sync: false } }, size: { value: { min: 0.5, max: 2.5 } }, links: { enable: false }, move: { enable: true, speed: 0.4, direction: "none", random: true, outModes: { default: "out" } } }, interactivity: { events: {} }, retina_detect: true },
+        };
+
+        function startMatrix() {
+            const canvas = document.getElementById('matrix-bg');
+            canvas.style.display = 'block';
+            const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+            resize(); window.addEventListener('resize', resize);
+            const ctx = canvas.getContext('2d');
+            const chars = '01アイウエオカキクケコ{}[]<>/\\|';
+            const size = 13;
+            let cols = Math.floor(canvas.width / size);
+            let drops = Array.from({ length: cols }, () => Math.random() * -60);
+            setInterval(() => {
+                cols = Math.floor(canvas.width / size);
+                if (drops.length !== cols) drops = Array.from({ length: cols }, () => Math.random() * -60);
+                ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.font = size + 'px JetBrains Mono, monospace';
+                for (let i = 0; i < drops.length; i++) {
+                    ctx.fillStyle = `rgba(255,255,255,${(Math.random() * 0.12 + 0.04).toFixed(2)})`;
+                    ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * size, drops[i] * size);
+                    if (drops[i] * size > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                    drops[i]++;
+                }
+            }, 50);
+        }
+
+        function loadBackground(bg) {
+            if (bg === 'matrix') { startMatrix(); return; }
+            tsParticles.load("tsparticles", bgConfigs[bg] || bgConfigs.winter);
+        }
+
+        const BADGE_DEFS = {
+            admin: { src: '/wrk_files/badge-admin.svg', label: 'administrator' },
+            early: { src: '/wrk_files/badge-early.svg', label: 'early starter' },
+            tester: { src: '/wrk_files/badge-tester.svg', label: 'tester' },
+            developer: { src: '/wrk_files/badge-developer.svg', label: 'developer' },
+        };
+
+        async function loadProfile() {
+            let bg = 'winter';
+            try {
+                const res = await fetch('https://api.wrk.money/profile/$$$');
+                if (res.ok) {
+                    const p = await res.json();
+                    if (p.avatar) document.querySelector('.pfp').src = p.avatar;
+                    if (p.badges?.length) {
+                        document.querySelectorAll('.badge-container[data-system]').forEach(b => b.remove());
+                        p.badges.forEach(id => {
+                            const b = BADGE_DEFS[id]; if (!b) return;
+                            const div = document.createElement('div');
+                            div.className = 'badge-container'; div.dataset.system = '1';
+                            div.innerHTML = `<img src="${b.src}" alt="${b.label}" class="badge-img"><span class="tooltip">${b.label}</span>`;
+                            document.querySelector('.name-row').appendChild(div);
+                        });
+                    }
+                    if (p.bioStatements?.length) { phrases = p.bioStatements; pIdx = 0; cIdx = 0; isDeleting = false; }
+                    if (p.musicEnabled && p.musicUrl) {
+                        audio.src = p.musicUrl;
+                        document.querySelector('.track-name').textContent = p.musicTitle || 'untitled';
+                    }
+                    if (p.tabs?.length) {
+                        document.querySelectorAll('.nav-group').forEach(g => g.remove());
+                        const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                        const footer = document.querySelector('.console-footer');
+                        p.tabs.forEach(tab => {
+                            if (!tab.buttons?.length) return;
+                            const group = document.createElement('div');
+                            group.className = 'nav-group';
+                            group.innerHTML = `<span class="section-label">${esc(tab.label)}</span>`;
+                            tab.buttons.forEach(btn => {
+                                if (btn.type === 'copy') {
+                                    const b = document.createElement('button'); b.className = 'hub-btn'; b.textContent = btn.text;
+                                    b.onclick = () => copyToClipboard(btn.value); group.appendChild(b);
+                                } else {
+                                    const a = document.createElement('a'); a.className = 'hub-btn'; a.href = btn.url;
+                                    a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = btn.text; group.appendChild(a);
+                                }
+                            });
+                            document.getElementById('main-content').insertBefore(group, footer);
+                        });
+                    }
+                    if (p.footer) document.querySelector('.console-footer').textContent = p.footer;
+                    if (p.background) bg = p.background;
+                    if (p.visits) {
+                        const vc = document.createElement('div');
+                        vc.className = 'visit-count';
+                        vc.textContent = p.visits.toLocaleString() + ' visits';
+                        document.querySelector('header').appendChild(vc);
+                    }
+                    fetch('https://api.wrk.money/visit/$$$', { method: 'POST' }).catch(() => {});
+                }
+            } catch(e) {}
+            loadBackground(bg);
+        }
+        loadProfile();
     </script>
 </body>
 </html>
