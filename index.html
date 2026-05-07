@@ -4,22 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>wrk.money</title>
-    <meta name="title" content="wrk.money">
-    <meta name="description" content="A directory for all of ogkush's sites.">
+    <meta name="description" content="tools, profiles, and a community hub.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://wrk.money/">
     <meta property="og:title" content="wrk.money">
-    <meta property="og:description" content="A directory for all of ogkush's sites.">
+    <meta property="og:description" content="tools, profiles, and a community hub.">
     <meta name="theme-color" content="#0a0a0a">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" href="/wrk_files/999circle.png" type="image/png">
     <style>
-        :root {
-            --glass: rgba(255,255,255,0.03);
-            --border: rgba(255,255,255,0.1);
-            --text: #ffffff;
-        }
-
+        :root { --glass: rgba(255,255,255,0.03); --border: rgba(255,255,255,0.1); --text: #ffffff; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JetBrains Mono', monospace; }
 
         body {
@@ -29,15 +23,15 @@
             justify-content: center;
             align-items: center;
             color: var(--text);
-            overflow: hidden;
+            overflow-x: hidden;
             position: relative;
+            padding: 70px 20px 60px;
         }
 
-        /* ── Header ── */
         .site-header {
             position: fixed; top: 0; left: 0; right: 0; z-index: 100;
             height: 46px;
-            background: rgba(10,10,10,0.8);
+            background: rgba(10,10,10,0.85);
             border-bottom: 1px solid rgba(255,255,255,0.07);
             backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
             display: flex; align-items: center; justify-content: space-between;
@@ -58,25 +52,30 @@
         }
         .header-btn:hover { border-color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.04); }
 
-        /* ── Particles ── */
-        #tsparticles { position: absolute; inset: 0; z-index: 0; }
+        #tsparticles { position: fixed; inset: 0; z-index: 0; }
 
-        /* ── Main content ── */
         .container {
             position: relative;
             text-align: center;
             width: 100%;
             max-width: 400px;
-            padding: 20px;
             z-index: 1;
         }
 
         h1 {
-            font-size: 2.2rem;
+            font-size: clamp(1.6rem, 8vw, 2.2rem);
             font-weight: 700;
             letter-spacing: 4px;
             text-transform: lowercase;
             opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .tagline {
+            font-size: 0.6rem;
+            opacity: 0.2;
+            letter-spacing: 3px;
+            text-transform: lowercase;
             margin-bottom: 2.5rem;
         }
 
@@ -90,122 +89,148 @@
             display: block;
         }
 
-        .nav-group { margin-bottom: 16px; }
+        .nav-group { margin-bottom: 20px; }
 
-        /* People row — 3 cards side by side */
-        .people-row { display: flex; gap: 10px; }
-        .person-btn {
-            flex: 1;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 16px 10px;
-            background: var(--glass); border: 1px solid var(--border);
-            border-radius: 4px; text-decoration: none; color: var(--text);
-            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            gap: 5px; min-width: 0;
-        }
-        .person-btn:hover {
-            background: rgba(255,255,255,0.07);
-            border-color: rgba(255,255,255,0.5);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .person-name { font-size: 0.82rem; letter-spacing: 1px; text-transform: lowercase; }
-        .person-role { font-size: 0.52rem; opacity: 0.22; letter-spacing: 2px; text-transform: lowercase; }
-
-        /* Standard nav buttons */
         .hub-btn {
-            display: flex; align-items: center; justify-content: center;
-            padding: 18px 22px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 20px;
             background: var(--glass); border: 1px solid var(--border);
             border-radius: 4px; text-decoration: none; color: var(--text);
             transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
             backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            text-transform: lowercase; font-size: 0.88rem; letter-spacing: 1px;
-            margin-bottom: 10px;
+            text-transform: lowercase; font-size: 0.85rem; letter-spacing: 1px;
+            margin-bottom: 8px;
         }
         .hub-btn:last-child { margin-bottom: 0; }
         .hub-btn:hover {
             background: rgba(255,255,255,0.07);
-            border-color: rgba(255,255,255,0.5);
+            border-color: rgba(255,255,255,0.4);
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
+        .btn-desc {
+            font-size: 0.55rem;
+            opacity: 0.25;
+            letter-spacing: 1px;
+            text-align: right;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .tool-btn {
+            display: flex; flex-direction: column; align-items: flex-start;
+            padding: 14px 16px;
+            background: var(--glass); border: 1px solid var(--border);
+            border-radius: 4px; text-decoration: none; color: var(--text);
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            backdrop-filter: blur(8px);
+            text-transform: lowercase;
+            gap: 4px;
+        }
+        .tool-btn:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.4);
+            transform: translateY(-2px);
+        }
+        .tool-name { font-size: 0.82rem; letter-spacing: 1px; }
+        .tool-desc { font-size: 0.52rem; opacity: 0.22; letter-spacing: 1px; }
 
         .console-footer {
             position: fixed;
-            bottom: 30px;
-            left: 0;
-            font-size: 0.62rem;
-            opacity: 0.2;
+            bottom: 24px; left: 0;
+            font-size: 0.62rem; opacity: 0.15;
             letter-spacing: 4px;
-            width: 100%;
-            text-align: center;
-            z-index: 1;
+            width: 100%; text-align: center; z-index: 1;
+        }
+
+        @media (max-width: 360px) {
+            .tools-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header class="site-header">
-        <a href="/" class="header-logo">wrk.money</a>
-        <div class="header-actions">
-            <a href="/login" class="header-btn">login</a>
-            <a href="/$" class="header-btn">register</a>
-        </div>
-    </header>
+<header class="site-header">
+    <a href="/" class="header-logo">wrk.money</a>
+    <div class="header-actions" id="header-actions">
+        <a href="/login" class="header-btn">login</a>
+    </div>
+</header>
 
-    <div id="tsparticles"></div>
+<div id="tsparticles"></div>
 
-    <div class="container">
-        <h1>wrk.money</h1>
+<div class="container">
+    <h1>wrk.money</h1>
+    <div class="tagline">tools · profiles · community</div>
 
-        <div class="nav-group">
-            <span class="section-label">people</span>
-            <div class="people-row">
-                <a href="/$" class="person-btn">
-                    <span class="person-name">wrk</span>
-                    <span class="person-role">admin</span>
-                </a>
-                <a href="/$$$" class="person-btn">
-                    <span class="person-name">pulse</span>
-                    <span class="person-role">admin</span>
-                </a>
-                <a href="/insanity" class="person-btn">
-                    <span class="person-name">jerry</span>
-                    <span class="person-role">early starter</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="nav-group">
-            <span class="section-label">navigate</span>
-            <a href="/tools" class="hub-btn">tools</a>
-            <a href="/startpage" class="hub-btn">startpage</a>
-        </div>
+    <div class="nav-group">
+        <span class="section-label">explore</span>
+        <a href="/tools" class="hub-btn">
+            <span>tools</span>
+            <span class="btn-desc">ip · paste · files · links</span>
+        </a>
+        <a href="/startpage" class="hub-btn">
+            <span>startpage</span>
+            <span class="btn-desc">ad-free search</span>
+        </a>
+        <a href="/directory" class="hub-btn" id="directory-btn">
+            <span>directory</span>
+            <span class="btn-desc">members · chat</span>
+        </a>
     </div>
 
-    <div class="console-footer">NETWORK.ESTABLISHED // HUB_01</div>
+    <div class="nav-group">
+        <span class="section-label">tools</span>
+        <div class="tools-grid">
+            <a href="/tools/ip-checker" class="tool-btn">
+                <span class="tool-name">ip checker</span>
+                <span class="tool-desc">lookup + reputation</span>
+            </a>
+            <a href="/tools/pastebin" class="tool-btn">
+                <span class="tool-name">pastebin</span>
+                <span class="tool-desc">syntax highlighted</span>
+            </a>
+            <a href="/tools/fileshare" class="tool-btn">
+                <span class="tool-name">file share</span>
+                <span class="tool-desc">upload + expiry</span>
+            </a>
+            <a href="/tools/shortener" class="tool-btn">
+                <span class="tool-name">shortener</span>
+                <span class="tool-desc">wrk.money/s/...</span>
+            </a>
+        </div>
+    </div>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.12.0/tsparticles.bundle.min.js"></script>
-    <script>
-        tsParticles.load("tsparticles", {
-            particles: {
-                number: { value: 80, density: { enable: true, area: 800 } },
-                color: { value: "#ffffff" },
-                shape: { type: "circle" },
-                opacity: { value: 0.3 },
-                size: { value: { min: 1, max: 3 } },
-                links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.2, width: 1 },
-                move: { enable: true, speed: 1, direction: "none", outModes: { default: "out" } }
-            },
-            interactivity: {
-                events: { onHover: { enable: true, mode: "grab" }, onClick: { enable: true, mode: "push" } },
-                modes: { grab: { distance: 140, links: { opacity: 0.5 } }, push: { quantity: 4 } }
-            },
-            retina_detect: true
-        });
-    </script>
+<div class="console-footer">NETWORK.ESTABLISHED // HUB_01</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.12.0/tsparticles.bundle.min.js"></script>
+<script>
+    // Update header based on login state
+    const token = localStorage.getItem('wrk_token');
+    if (token) {
+        document.getElementById('header-actions').innerHTML = `
+            <a href="/directory" class="header-btn">directory</a>
+            <a href="/settings" class="header-btn">my profile</a>
+        `;
+    }
+
+    tsParticles.load("tsparticles", {
+        particles: {
+            number: { value: 80, density: { enable: true, area: 800 } },
+            color: { value: "#ffffff" }, shape: { type: "circle" },
+            opacity: { value: 0.3 }, size: { value: { min: 1, max: 3 } },
+            links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.2, width: 1 },
+            move: { enable: true, speed: 1, direction: "none", outModes: { default: "out" } }
+        },
+        interactivity: {
+            events: { onHover: { enable: true, mode: "grab" }, onClick: { enable: true, mode: "push" } },
+            modes: { grab: { distance: 140, links: { opacity: 0.5 } }, push: { quantity: 4 } }
+        },
+        retina_detect: true
+    });
+</script>
 </body>
 </html>
