@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>directory | wrk.money</title>
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#000000">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/wrk_files/999circle.png" type="image/png">
+    <style>
+        :root { --glass: rgba(255,255,255,0.03); --border: rgba(255,255,255,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JetBrains Mono', monospace; }
+        body { background: #000; min-height: 100vh; color: #fff; padding: 60px 20px 60px; overflow-x: hidden; }
+        #tsparticles { position: fixed; inset: 0; z-index: 0; }
+        .container { position: relative; z-index: 1; width: 100%; max-width: 700px; margin: 0 auto; }
+
+        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 10px; }
+        h1 { font-size: 2rem; font-weight: 700; letter-spacing: 4px; text-transform: lowercase; opacity: 0.9; }
+        .top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 2px; text-transform: lowercase; padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+        .btn:hover:not(:disabled) { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.4); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-danger { border-color: rgba(255,80,80,0.3); color: rgba(255,120,120,0.8); }
+        .btn-danger:hover { background: rgba(255,80,80,0.1) !important; border-color: rgba(255,80,80,0.6) !important; color: #ff8080 !important; }
+
+        .card { background: var(--glass); border: 1px solid var(--border); border-radius: 4px; padding: 20px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); margin-bottom: 16px; }
+        .section-label { font-size: 0.6rem; opacity: 0.3; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; }
+
+        /* MOTD */
+        .motd-card { border-color: rgba(255,255,255,0.18); background: rgba(255,255,255,0.04); }
+        .motd-label { font-size: 0.55rem; opacity: 0.35; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
+        .motd-text { font-size: 0.85rem; opacity: 0.85; line-height: 1.5; letter-spacing: 0.5px; }
+
+        /* User grid */
+        .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .user-card { background: var(--glass); border: 1px solid var(--border); border-radius: 4px; padding: 16px 12px; text-decoration: none; color: #fff; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .user-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.3); transform: translateY(-2px); }
+        .user-card-pfp { width: 48px; height: 48px; border-radius: 4px; border: 1px solid var(--border); object-fit: cover; }
+        .user-card-name { font-size: 0.8rem; letter-spacing: 1px; text-transform: lowercase; opacity: 0.9; word-break: break-word; }
+        .user-card-uid { font-size: 0.5rem; opacity: 0.25; letter-spacing: 2px; }
+        .user-card-badges { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; min-height: 16px; }
+        .badge-img { width: 16px; height: 16px; }
+
+        /* Shoutbox */
+        .shoutbox-messages { height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; margin-bottom: 12px; }
+        .shoutbox-messages::-webkit-scrollbar { width: 3px; }
+        .shoutbox-messages::-webkit-scrollbar-track { background: transparent; }
+        .shoutbox-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+        .shoutbox-msg { display: flex; gap: 10px; align-items: flex-start; }
+        .msg-avatar { width: 28px; height: 28px; border-radius: 3px; border: 1px solid var(--border); object-fit: cover; flex-shrink: 0; }
+        .msg-body { flex: 1; min-width: 0; }
+        .msg-meta { font-size: 0.55rem; margin-bottom: 3px; }
+        .msg-name { opacity: 0.6; }
+        .msg-uid { opacity: 0.3; margin-left: 4px; }
+        .msg-time { opacity: 0.2; margin-left: 6px; }
+        .msg-text { font-size: 0.78rem; opacity: 0.85; line-height: 1.4; word-break: break-word; }
+        .shoutbox-input-row { display: flex; gap: 8px; }
+        .shoutbox-input-row input { flex: 1; min-width: 0; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 4px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; padding: 9px 12px; outline: none; transition: border-color 0.2s; }
+        .shoutbox-input-row input:focus { border-color: rgba(255,255,255,0.3); }
+        .shoutbox-input-row input::placeholder { opacity: 0.2; }
+        .char-count { font-size: 0.5rem; opacity: 0.2; letter-spacing: 1px; text-align: right; margin-top: 4px; }
+
+        .loading { font-size: 0.7rem; opacity: 0.25; letter-spacing: 2px; text-align: center; padding: 20px 0; }
+        .empty { font-size: 0.65rem; opacity: 0.2; letter-spacing: 1px; text-align: center; padding: 20px 0; }
+        .console-footer { text-align: center; font-size: 0.6rem; opacity: 0.15; letter-spacing: 4px; margin-top: 24px; }
+
+        @media (max-width: 420px) {
+            h1 { font-size: 1.5rem; letter-spacing: 2px; }
+            .user-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="tsparticles"></div>
+
+<div class="container">
+    <div class="top-row">
+        <h1>directory</h1>
+        <div class="top-actions">
+            <a href="/" class="btn">← home</a>
+            <a href="/settings" class="btn">settings</a>
+            <button class="btn btn-danger" id="logout-btn">logout</button>
+        </div>
+    </div>
+
+    <div id="motd-wrap" style="display:none" class="card motd-card">
+        <div class="motd-label">motd</div>
+        <div id="motd-text" class="motd-text"></div>
+    </div>
+
+    <div class="section-label">members</div>
+    <div id="user-grid" class="user-grid">
+        <div class="loading">loading...</div>
+    </div>
+
+    <div class="card">
+        <div class="section-label">shoutbox</div>
+        <div id="shoutbox-messages" class="shoutbox-messages">
+            <div class="loading">loading...</div>
+        </div>
+        <div class="shoutbox-input-row">
+            <input type="text" id="shoutbox-input" placeholder="say something..." maxlength="140" autocomplete="off">
+            <button class="btn" id="shoutbox-send">send</button>
+        </div>
+        <div class="char-count" id="char-count">140</div>
+    </div>
+
+    <div class="console-footer">DIRECTORY // WRK_04</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.12.0/tsparticles.bundle.min.js"></script>
+<script>
+    const token = localStorage.getItem('wrk_token');
+    if (!token) window.location.href = '/login';
+
+    tsParticles.load("tsparticles", {
+        particles: {
+            number: { value: 60, density: { enable: true, area: 800 } },
+            color: { value: "#ffffff" }, shape: { type: "circle" },
+            opacity: { value: 0.2 }, size: { value: { min: 1, max: 2 } },
+            links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.1, width: 1 },
+            move: { enable: true, speed: 0.6, outModes: { default: "out" } }
+        },
+        retina_detect: true
+    });
+
+    function authFetch(path, opts = {}) {
+        return fetch(`https://api.wrk.money${path}`, {
+            ...opts,
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...(opts.headers || {}) },
+        });
+    }
+
+    function escHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function relTime(ts) {
+        const diff = Date.now() - ts;
+        if (diff < 60000) return 'just now';
+        if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+        if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+        return Math.floor(diff / 86400000) + 'd ago';
+    }
+
+    const BADGE_DEFS = {
+        admin:     { src: '/wrk_files/badge-admin.svg',     label: 'administrator' },
+        early:     { src: '/wrk_files/badge-early.svg',     label: 'early starter' },
+        tester:    { src: '/wrk_files/badge-tester.svg',    label: 'tester' },
+        developer: { src: '/wrk_files/badge-developer.svg', label: 'developer' },
+    };
+
+    function renderUsers(users) {
+        const grid = document.getElementById('user-grid');
+        if (!users.length) { grid.innerHTML = '<div class="empty">no members yet</div>'; return; }
+        grid.innerHTML = users.map(u => `
+            <a href="https://wrk.money/${escHtml(u.slug)}" target="_blank" class="user-card">
+                <img src="${escHtml(u.avatar) || '/wrk_files/999circle.png'}" alt="" class="user-card-pfp" onerror="this.src='/wrk_files/999circle.png'">
+                <div class="user-card-name">${escHtml(u.displayName)}</div>
+                ${u.uid !== null && u.uid !== undefined ? `<div class="user-card-uid">UID #${u.uid}</div>` : ''}
+                <div class="user-card-badges">
+                    ${(u.badges || []).map(id => {
+                        const b = BADGE_DEFS[id];
+                        return b ? `<img src="${b.src}" alt="${b.label}" title="${b.label}" class="badge-img">` : '';
+                    }).join('')}
+                </div>
+            </a>
+        `).join('');
+    }
+
+    function renderMessages(messages) {
+        const container = document.getElementById('shoutbox-messages');
+        if (!messages.length) { container.innerHTML = '<div class="empty">no messages yet. say something.</div>'; return; }
+        const wasAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 40;
+        container.innerHTML = messages.map(m => `
+            <div class="shoutbox-msg">
+                <img src="${escHtml(m.avatar) || '/wrk_files/999circle.png'}" alt="" class="msg-avatar" onerror="this.src='/wrk_files/999circle.png'">
+                <div class="msg-body">
+                    <div class="msg-meta">
+                        <span class="msg-name">${escHtml(m.displayName)}</span>
+                        ${m.uid !== null && m.uid !== undefined ? `<span class="msg-uid">UID #${m.uid}</span>` : ''}
+                        <span class="msg-time">${relTime(m.timestamp)}</span>
+                    </div>
+                    <div class="msg-text">${escHtml(m.text)}</div>
+                </div>
+            </div>
+        `).join('');
+        if (wasAtBottom) container.scrollTop = container.scrollHeight;
+    }
+
+    async function pollShoutbox() {
+        const res = await authFetch('/shoutbox');
+        if (res.ok) renderMessages(await res.json());
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('shoutbox-input');
+        const btn = document.getElementById('shoutbox-send');
+        const text = input.value.trim();
+        if (!text) return;
+        btn.disabled = true; input.disabled = true;
+        try {
+            const res = await authFetch('/shoutbox', { method: 'POST', body: JSON.stringify({ text }) });
+            if (res.ok) {
+                input.value = '';
+                document.getElementById('char-count').textContent = '140';
+                await pollShoutbox();
+                const container = document.getElementById('shoutbox-messages');
+                container.scrollTop = container.scrollHeight;
+            } else {
+                const d = await res.json();
+                if (d.error === 'slow down') {
+                    btn.textContent = 'slow down';
+                    setTimeout(() => { btn.textContent = 'send'; }, 2000);
+                }
+            }
+        } finally {
+            btn.disabled = false; input.disabled = false; input.focus();
+        }
+    }
+
+    document.getElementById('shoutbox-send').addEventListener('click', sendMessage);
+    document.getElementById('shoutbox-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+    document.getElementById('shoutbox-input').addEventListener('input', e => {
+        document.getElementById('char-count').textContent = 140 - e.target.value.length;
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        localStorage.removeItem('wrk_token');
+        window.location.href = '/login';
+    });
+
+    async function init() {
+        const meRes = await authFetch('/auth/me');
+        if (!meRes.ok) { localStorage.removeItem('wrk_token'); window.location.href = '/login'; return; }
+
+        const [motdRes, usersRes, shoutboxRes] = await Promise.all([
+            fetch('https://api.wrk.money/motd'),
+            authFetch('/directory'),
+            authFetch('/shoutbox'),
+        ]);
+
+        if (motdRes.ok) {
+            const { motd } = await motdRes.json();
+            if (motd) {
+                document.getElementById('motd-text').textContent = motd;
+                document.getElementById('motd-wrap').style.display = 'block';
+            }
+        }
+
+        if (usersRes.ok) renderUsers(await usersRes.json());
+        else document.getElementById('user-grid').innerHTML = '<div class="empty">failed to load</div>';
+
+        if (shoutboxRes.ok) {
+            renderMessages(await shoutboxRes.json());
+            const container = document.getElementById('shoutbox-messages');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        setInterval(pollShoutbox, 8000);
+    }
+
+    init().catch(() => { localStorage.removeItem('wrk_token'); window.location.href = '/login'; });
+</script>
+</body>
+</html>

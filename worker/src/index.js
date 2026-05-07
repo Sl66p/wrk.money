@@ -11,7 +11,7 @@ const RESERVED_SLUGS = new Set([
   '$', '$$', '$$$', 'insanity', 'startpage', 'tools', '404',
   'p', 'd', 's', 'login', 'admin', 'settings', 'profile',
   'wrk_files', 'api', 'index', 'favicon', 'cname', 'readme',
-  'auth', 'usage', 'robots.txt', 'sitemap.xml', 'assets',
+  'auth', 'usage', 'robots.txt', 'sitemap.xml', 'assets', 'directory',
 ]);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -46,6 +46,84 @@ function json(data, status = 200, headers = {}) {
 
 function err(msg, status = 400, extraHeaders = {}) {
   return json({ error: msg }, status, extraHeaders);
+}
+
+async function getDirectory(req, env, corsHeaders) {
+  const payload = await requireAuth(req, env);
+  if (!payload) return err('unauthorized', 401, corsHeaders);
+  const list = await env.WRK_KV.list({ prefix: 'user:' });
+  const users = await Promise.all(
+    list.keys.map(async k => {
+      const u = await env.WRK_KV.get(k.name, { type: 'json' });
+      if (!u || !u.passwordHash) return null;
+      const profile = await env.WRK_KV.get(`profile:${u.slug}`, { type: 'json' });
+      return {
+        slug: u.slug,
+        uid: u.uid ?? null,
+        displayName: profile?.displayName || u.username,
+        avatar: profile?.avatar || '',
+        badges: profile?.badges || [],
+      };
+    })
+  );
+  const sorted = users.filter(Boolean).sort((a, b) => {
+    if (a.uid === null && b.uid === null) return 0;
+    if (a.uid === null) return 1;
+    if (b.uid === null) return -1;
+    return a.uid - b.uid;
+  });
+  return json(sorted, 200, corsHeaders);
+}
+
+async function getMOTD(env, corsHeaders) {
+  const motd = await env.WRK_KV.get('motd');
+  return json({ motd: motd || null }, 200, corsHeaders);
+}
+
+async function setMOTD(req, env, corsHeaders) {
+  if (!requireAdmin(req, env)) return err('forbidden', 403, corsHeaders);
+  const body = await req.json().catch(() => null);
+  const text = String(body?.motd ?? '').trim().slice(0, 280);
+  if (text) await env.WRK_KV.put('motd', text);
+  else await env.WRK_KV.delete('motd');
+  return json({ motd: text || null }, 200, corsHeaders);
+}
+
+async function getShoutbox(req, env, corsHeaders) {
+  const payload = await requireAuth(req, env);
+  if (!payload) return err('unauthorized', 401, corsHeaders);
+  const messages = await env.WRK_KV.get('shoutbox', { type: 'json' }) || [];
+  return json(messages, 200, corsHeaders);
+}
+
+async function postShoutbox(req, env, corsHeaders) {
+  const payload = await requireAuth(req, env);
+  if (!payload) return err('unauthorized', 401, corsHeaders);
+  const body = await req.json().catch(() => null);
+  const text = String(body?.text || '').trim().slice(0, 140);
+  if (!text) return err('message required', 400, corsHeaders);
+  if (await env.WRK_KV.get(`shoutbox_rl:${payload.slug}`)) return err('slow down', 429, corsHeaders);
+  await env.WRK_KV.put(`shoutbox_rl:${payload.slug}`, '1', { expirationTtl: 5 });
+  const profile = await env.WRK_KV.get(`profile:${payload.slug}`, { type: 'json' });
+  const message = {
+    slug: payload.slug,
+    uid: profile?.uid ?? null,
+    displayName: profile?.displayName || payload.username,
+    avatar: profile?.avatar || '',
+    text,
+    timestamp: Date.now(),
+  };
+  const messages = await env.WRK_KV.get('shoutbox', { type: 'json' }) || [];
+  messages.push(message);
+  if (messages.length > 50) messages.splice(0, messages.length - 50);
+  await env.WRK_KV.put('shoutbox', JSON.stringify(messages));
+  return json(message, 201, corsHeaders);
+}
+
+async function getNextUid(env) {
+  const current = parseInt(await env.WRK_KV.get('uid:counter') || '0');
+  await env.WRK_KV.put('uid:counter', String(current + 1));
+  return current;
 }
 
 function toRawFileUrl(url) {
@@ -231,7 +309,8 @@ async function register(req, env, corsHeaders) {
   const salt = body.password ? nanoid(16) : null;
   const passwordHash = body.password ? await hashPassword(body.password, salt) : null;
 
-  const user = { username, slug, passwordHash, salt, createdAt: Date.now() };
+  const uid = await getNextUid(env);
+  const user = { username, slug, passwordHash, salt, uid, createdAt: Date.now() };
   const profile = {
     slug,
     displayName: username,
@@ -239,13 +318,15 @@ async function register(req, env, corsHeaders) {
     bioStatements: [],
     tabs: [],
     footer: '',
+    uid,
     createdAt: Date.now(),
   };
 
   await env.WRK_KV.put(`user:${username}`, JSON.stringify(user));
   await env.WRK_KV.put(`profile:${slug}`, JSON.stringify(profile));
+  await env.WRK_KV.put(`uid:${uid}`, slug);
 
-  return json({ username, slug }, 201, corsHeaders);
+  return json({ username, slug, uid }, 201, corsHeaders);
 }
 
 async function getMe(req, env, corsHeaders) {
@@ -316,6 +397,33 @@ async function updateProfile(slug, req, env, corsHeaders) {
   return json(updated, 200, corsHeaders);
 }
 
+async function setUid(req, env, corsHeaders) {
+  if (!requireAdmin(req, env)) return err('forbidden', 403, corsHeaders);
+  const body = await req.json().catch(() => null);
+  if (!body?.slug || body?.uid === undefined || body?.uid === null) return err('slug and uid required', 400, corsHeaders);
+  const { slug, uid } = body;
+  if (!Number.isInteger(uid)) return err('uid must be an integer', 400, corsHeaders);
+
+  const profile = await env.WRK_KV.get(`profile:${slug}`, { type: 'json' });
+  if (!profile) return err('profile not found', 404, corsHeaders);
+  await env.WRK_KV.put(`profile:${slug}`, JSON.stringify({ ...profile, uid }));
+
+  if (uid >= 0) await env.WRK_KV.put(`uid:${uid}`, slug);
+
+  const list = await env.WRK_KV.list({ prefix: 'user:' });
+  for (const k of list.keys) {
+    const u = await env.WRK_KV.get(k.name, { type: 'json' });
+    if (u?.slug === slug) { await env.WRK_KV.put(k.name, JSON.stringify({ ...u, uid })); break; }
+  }
+
+  if (uid >= 0) {
+    const current = parseInt(await env.WRK_KV.get('uid:counter') || '0');
+    if (uid >= current) await env.WRK_KV.put('uid:counter', String(uid + 1));
+  }
+
+  return json({ slug, uid }, 200, corsHeaders);
+}
+
 async function putBadges(slug, req, env, corsHeaders) {
   if (!requireAdmin(req, env)) return err('forbidden', 403, corsHeaders);
   const profile = await env.WRK_KV.get(`profile:${slug}`, { type: 'json' });
@@ -336,7 +444,7 @@ async function listUsers(req, env, corsHeaders) {
       const u = await env.WRK_KV.get(k.name, { type: 'json' });
       if (!u) return null;
       const profile = await env.WRK_KV.get(`profile:${u.slug}`, { type: 'json' });
-      return { username: u.username, slug: u.slug, claimed: !!u.passwordHash, createdAt: u.createdAt, badges: profile?.badges || [] };
+      return { username: u.username, slug: u.slug, uid: u.uid ?? null, claimed: !!u.passwordHash, createdAt: u.createdAt, badges: profile?.badges || [] };
     })
   );
   return json(users.filter(Boolean), 200, corsHeaders);
@@ -520,10 +628,18 @@ export default {
     if (req.method === 'PUT' && path.startsWith('/profile/'))
       return updateProfile(path.slice(9), req, env, corsHeaders);
 
+    // Directory + MOTD + Shoutbox
+    if (req.method === 'GET'  && path === '/directory')    return getDirectory(req, env, corsHeaders);
+    if (req.method === 'GET'  && path === '/motd')         return getMOTD(env, corsHeaders);
+    if (req.method === 'PUT'  && path === '/admin/motd')   return setMOTD(req, env, corsHeaders);
+    if (req.method === 'GET'  && path === '/shoutbox')     return getShoutbox(req, env, corsHeaders);
+    if (req.method === 'POST' && path === '/shoutbox')     return postShoutbox(req, env, corsHeaders);
+
     // Admin
     if (req.method === 'GET'  && path === '/admin/users')           return listUsers(req, env, corsHeaders);
-    if (req.method === 'POST' && path.startsWith('/visit/'))        return recordVisit(path.slice(7), env, corsHeaders);
+    if (req.method === 'PUT'  && path === '/admin/uid')             return setUid(req, env, corsHeaders);
     if (req.method === 'PUT'  && path.startsWith('/admin/badges/')) return putBadges(path.slice(14), req, env, corsHeaders);
+    if (req.method === 'POST' && path.startsWith('/visit/'))        return recordVisit(path.slice(7), env, corsHeaders);
 
     // Pastebin
     if (req.method === 'POST' && path === '/p') return createPaste(req, env, corsHeaders);

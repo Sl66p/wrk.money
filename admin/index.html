@@ -90,6 +90,16 @@
 
     <div id="panel" style="display:none">
         <div class="card">
+            <div class="section-title">message of the day</div>
+            <div class="field">
+                <label>motd <span style="opacity:0.4">(shown at top of /directory · leave blank to clear)</span></label>
+                <input type="text" id="motd-input" placeholder="say something to the crew..." maxlength="280">
+            </div>
+            <button class="btn btn-full" id="motd-btn">set motd</button>
+            <div class="msg" id="motd-msg"></div>
+        </div>
+
+        <div class="card">
             <div class="section-title">create account</div>
             <div class="field">
                 <label>username</label>
@@ -178,6 +188,7 @@
         document.getElementById('panel').style.display = 'block';
         const users = await res.json();
         renderUsers(users);
+        loadMOTD();
     }
 
     function renderUsers(users) {
@@ -272,6 +283,34 @@
             msgEl.classList.add('msg', 'err', 'visible');
         } finally {
             btn.disabled = false; btn.textContent = 'create account';
+        }
+    });
+
+    async function loadMOTD() {
+        const res = await fetch('https://api.wrk.money/motd');
+        if (res.ok) {
+            const { motd } = await res.json();
+            if (motd) document.getElementById('motd-input').value = motd;
+        }
+    }
+
+    document.getElementById('motd-btn').addEventListener('click', async () => {
+        const text = document.getElementById('motd-input').value.trim();
+        const msgEl = document.getElementById('motd-msg');
+        const btn = document.getElementById('motd-btn');
+        btn.disabled = true; btn.textContent = 'saving...';
+        msgEl.className = 'msg'; msgEl.classList.remove('visible');
+        try {
+            const res = await apiCall('/admin/motd', { method: 'PUT', body: JSON.stringify({ motd: text }) });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'failed');
+            msgEl.textContent = text ? 'motd set' : 'motd cleared';
+            msgEl.classList.add('msg', 'ok', 'visible');
+        } catch(e) {
+            msgEl.textContent = e.message;
+            msgEl.classList.add('msg', 'err', 'visible');
+        } finally {
+            btn.disabled = false; btn.textContent = 'set motd';
         }
     });
 
