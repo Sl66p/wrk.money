@@ -112,6 +112,7 @@
         }
 
         #matrix-bg { display: none; position: fixed; inset: 0; z-index: 0; }
+        #bg-media { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; }
         .visit-count { font-size: 0.5rem; opacity: 0.15; letter-spacing: 2px; text-align: right; margin-top: 10px; }
         .uid-label { font-size: 0.5rem; opacity: 0.2; letter-spacing: 3px; margin-top: 4px; }
         header {
@@ -478,6 +479,14 @@
             }, 50);
         }
 
+        function loadCustomBg(url, type) {
+            document.getElementById('tsparticles').style.display = 'none';
+            const el = type === 'video' ? document.createElement('video') : document.createElement('img');
+            el.id = 'bg-media'; el.src = url;
+            if (type === 'video') { el.autoplay = true; el.muted = true; el.loop = true; el.playsInline = true; }
+            document.body.insertBefore(el, document.body.firstChild);
+        }
+
         function loadBackground(bg) {
             if (bg === 'matrix') { startMatrix(); return; }
             tsParticles.load("tsparticles", bgConfigs[bg] || bgConfigs.winter);
@@ -536,6 +545,7 @@
                     }
                     if (p.footer) document.querySelector('.console-footer').textContent = p.footer;
                     if (p.background) bg = p.background;
+                    if (p.bgUrl) { loadCustomBg(p.bgUrl, p.bgType || 'image'); bg = null; }
                     if (p.visits) {
                         const vc = document.createElement('div');
                         vc.className = 'visit-count';
@@ -545,7 +555,7 @@
                     fetch('https://api.wrk.money/visit/$$$', { method: 'POST' }).catch(() => {});
                 }
             } catch(e) {}
-            loadBackground(bg);
+            if (bg) loadBackground(bg);
         }
         loadProfile();
     </script>

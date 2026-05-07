@@ -390,6 +390,8 @@ async function updateProfile(slug, req, env, corsHeaders) {
     musicEnabled: !!body.musicEnabled,
     musicUrl: body.musicEnabled ? toRawFileUrl(String(body.musicUrl || '').trim()).slice(0, 500) || null : null,
     musicTitle: body.musicEnabled ? String(body.musicTitle || '').trim().slice(0, 80) || null : null,
+    bgUrl: toRawFileUrl(String(body.bgUrl || '').trim()).slice(0, 500) || null,
+    bgType: ['image', 'video'].includes(body.bgType) ? body.bgType : null,
     updatedAt: Date.now(),
   };
 
