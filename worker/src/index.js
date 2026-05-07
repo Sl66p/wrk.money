@@ -126,6 +126,29 @@ async function getNextUid(env) {
   return current;
 }
 
+function serveOGPage(profile, pageUrl) {
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const title = profile.ogTitle || profile.displayName || 'wrk.money';
+  const desc  = profile.ogDescription || (profile.bioStatements || [])[0] || '';
+  const image = profile.ogImage || profile.avatar || 'https://wrk.money/wrk_files/999circle.png';
+  return new Response(
+    `<!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<title>${esc(title)} | wrk.money</title>
+<meta property="og:title" content="${esc(title)}">
+<meta property="og:description" content="${esc(desc)}">
+<meta property="og:image" content="${esc(image)}">
+<meta property="og:url" content="${esc(pageUrl)}">
+<meta property="og:type" content="profile">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="${esc(title)}">
+<meta name="twitter:description" content="${esc(desc)}">
+<meta name="twitter:image" content="${esc(image)}">
+</head><body></body></html>`,
+    { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+  );
+}
+
 function toRawFileUrl(url) {
   try {
     const u = new URL(url);
@@ -637,9 +660,21 @@ export default {
 
     const path = url.pathname;
 
-    // wrk.money/s/:slug — URL shortener redirect
-    if (url.hostname === 'wrk.money' && path.startsWith('/s/')) {
-      return resolveShortUrl(path.slice(3), env);
+    // wrk.money requests — URL shortener + bot OG serving + passthrough
+    if (url.hostname === 'wrk.money') {
+      if (path.startsWith('/s/')) return resolveShortUrl(path.slice(3), env);
+
+      const ua = req.headers.get('User-Agent') || '';
+      const isBot = /discordbot|twitterbot|facebookexternalhit|facebot|slackbot-linkexpanding|linkedinbot|whatsapp|telegrambot|applebot|iframely/i.test(ua);
+      if (isBot) {
+        const slug = path.replace(/^\//, '').replace(/\/$/, '');
+        if (slug && !slug.includes('/') && !slug.includes('.')) {
+          const profile = await env.WRK_KV.get(`profile:${slug}`, { type: 'json' });
+          if (profile) return serveOGPage(profile, req.url);
+        }
+      }
+
+      return fetch(req);
     }
 
     // Auth
