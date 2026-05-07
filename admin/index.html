@@ -46,13 +46,15 @@
         .user-list { display: flex; flex-direction: column; gap: 8px; }
         .user-row {
             display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 8px;
             padding: 10px 14px; background: rgba(255,255,255,0.02);
             border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem;
         }
-        .user-row .slug { opacity: 0.4; font-size: 0.65rem; }
-        .user-row a { color: rgba(255,255,255,0.4); font-size: 0.6rem; text-decoration: none; letter-spacing: 1px; transition: opacity 0.2s; }
+        .user-row > div:first-child { flex: 1; min-width: 0; }
+        .user-row .slug { opacity: 0.4; font-size: 0.65rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-row a { color: rgba(255,255,255,0.4); font-size: 0.6rem; text-decoration: none; letter-spacing: 1px; transition: opacity 0.2s; white-space: nowrap; }
         .user-row a:hover { color: #fff; }
-        .badge-toggles { display: flex; gap: 4px; }
+        .badge-toggles { display: flex; gap: 4px; flex-wrap: wrap; }
         .badge-toggle {
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
             color: rgba(255,255,255,0.25); font-family: 'JetBrains Mono', monospace;
