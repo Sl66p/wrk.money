@@ -401,22 +401,23 @@ async function deleteUser(slug, req, env, corsHeaders) {
   if (!requireAdmin(req, env)) return err('forbidden', 403, corsHeaders);
 
   const profile = await env.WRK_KV.get(`profile:${slug}`, { type: 'json' });
-  if (!profile) return err('profile not found', 404, corsHeaders);
 
-  // Remove uid reverse lookup
-  if (profile.uid !== undefined && profile.uid !== null && profile.uid >= 0)
+  // Clean up uid reverse lookup if profile has one
+  if (profile?.uid !== undefined && profile?.uid !== null && profile.uid >= 0)
     await env.WRK_KV.delete(`uid:${profile.uid}`);
 
-  // Find and delete user record
+  // Find and delete user record by scanning (handles corrupt slugs with no profile)
   const list = await env.WRK_KV.list({ prefix: 'user:' });
+  let foundUser = false;
   for (const k of list.keys) {
     const u = await env.WRK_KV.get(k.name, { type: 'json' });
-    if (u?.slug === slug) { await env.WRK_KV.delete(k.name); break; }
+    if (u?.slug === slug) { await env.WRK_KV.delete(k.name); foundUser = true; break; }
   }
 
-  await env.WRK_KV.delete(`profile:${slug}`);
+  if (profile) await env.WRK_KV.delete(`profile:${slug}`);
   await env.WRK_KV.delete(`visits:${slug}`);
 
+  if (!profile && !foundUser) return err('account not found', 404, corsHeaders);
   return json({ deleted: slug }, 200, corsHeaders);
 }
 
@@ -660,7 +661,7 @@ export default {
 
     // Admin
     if (req.method === 'GET'    && path === '/admin/users')              return listUsers(req, env, corsHeaders);
-    if (req.method === 'DELETE' && path.startsWith('/admin/user/'))     return deleteUser(path.slice(13), req, env, corsHeaders);
+    if (req.method === 'DELETE' && path.startsWith('/admin/user/'))     return deleteUser(path.slice(12), req, env, corsHeaders);
     if (req.method === 'PUT'    && path === '/admin/uid')               return setUid(req, env, corsHeaders);
     if (req.method === 'PUT'  && path.startsWith('/admin/badges/')) return putBadges(path.slice(14), req, env, corsHeaders);
     if (req.method === 'POST' && path.startsWith('/visit/'))        return recordVisit(path.slice(7), env, corsHeaders);
