@@ -64,6 +64,8 @@
         .badge-toggle:hover:not(:disabled) { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); }
         .badge-toggle.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.45); color: #fff; }
         .badge-toggle:disabled { opacity: 0.3; cursor: not-allowed; }
+        .delete-btn { background: none; border: 1px solid rgba(255,80,80,0.2); color: rgba(255,100,100,0.4); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; padding: 3px 8px; border-radius: 3px; cursor: pointer; transition: all 0.2s; }
+        .delete-btn:hover { border-color: rgba(255,80,80,0.6); color: #ff6b6b; background: rgba(255,80,80,0.08); }
         .uid-input { width: 44px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.35); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; padding: 3px 6px; border-radius: 3px; text-align: center; }
         .uid-input:focus { outline: none; border-color: rgba(255,255,255,0.35); color: #fff; }
         .uid-input::placeholder { opacity: 0.4; }
@@ -210,9 +212,30 @@
                     <button class="badge-toggle${badges.includes('developer') ? ' active' : ''}" data-badge="developer" data-slug="${u.slug}">dev</button>
                 </div>
                 <a href="https://wrk.money/${u.slug}" target="_blank">view →</a>
+                <button class="delete-btn" data-slug="${u.slug}" data-name="${u.username}">del</button>
             </div>`;
         }).join('');
     }
+
+    document.getElementById('user-list').addEventListener('click', async e => {
+        const btn = e.target.closest('.delete-btn');
+        if (!btn) return;
+        const { slug, name } = btn.dataset;
+        if (!confirm(`delete account "${name}" (${slug})?\n\nthis cannot be undone.`)) return;
+        btn.disabled = true; btn.textContent = '...';
+        try {
+            const res = await apiCall(`/admin/user/${slug}`, { method: 'DELETE' });
+            if (res.ok) {
+                btn.closest('.user-row').remove();
+            } else {
+                const d = await res.json();
+                alert(d.error || 'delete failed');
+                btn.disabled = false; btn.textContent = 'del';
+            }
+        } catch {
+            btn.disabled = false; btn.textContent = 'del';
+        }
+    });
 
     document.getElementById('user-list').addEventListener('keydown', async e => {
         if (e.key !== 'Enter') return;
