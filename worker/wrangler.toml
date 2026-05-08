@@ -18,5 +18,5 @@ pattern = "api.wrk.money/*"
 zone_name = "wrk.money"
 
 [[routes]]
-pattern = "wrk.money/s/*"
+pattern = "wrk.money/*"
 zone_name = "wrk.money"

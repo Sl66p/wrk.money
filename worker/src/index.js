@@ -406,7 +406,7 @@ async function updateProfile(slug, req, env, corsHeaders) {
       }).filter(btn => btn.text),
     })).filter(tab => tab.label),
     footer: String(body.footer || '').trim().slice(0, 100),
-    background: ['network', 'winter', 'starfield', 'matrix'].includes(body.background) ? body.background : (existing.background || 'network'),
+    background: ['network', 'winter', 'starfield', 'matrix', 'visualizer'].includes(body.background) ? body.background : (existing.background || 'network'),
     ogTitle: String(body.ogTitle || '').trim().slice(0, 60) || null,
     ogDescription: String(body.ogDescription || '').trim().slice(0, 200) || null,
     ogImage: toRawFileUrl(String(body.ogImage || '').trim()).slice(0, 500) || null,
@@ -667,9 +667,18 @@ export default {
       const ua = req.headers.get('User-Agent') || '';
       const isBot = /discordbot|twitterbot|facebookexternalhit|facebot|slackbot-linkexpanding|linkedinbot|whatsapp|telegrambot|applebot|iframely/i.test(ua);
       if (isBot) {
-        const slug = path.replace(/^\//, '').replace(/\/$/, '');
+        const slug = decodeURIComponent(path.replace(/^\//, '').replace(/\/$/, ''));
         if (slug && !slug.includes('/') && !slug.includes('.')) {
-          const profile = await env.WRK_KV.get(`profile:${slug}`, { type: 'json' });
+          let profile = await env.WRK_KV.get(`profile:${slug}`, { type: 'json' });
+          // Fallback OG data for static pages whose accounts may not be in KV yet
+          if (!profile) {
+            const STATIC_OG = {
+              '$':       { displayName: 'ogkush',  bioStatements: ['cybersecurity student & developer. 999 forever.'], avatar: 'https://wrk.money/wrk_files/giphy.gif' },
+              '$$$':     { displayName: 'pulse',   bioStatements: ['just a chill dude. 999 forever.'], avatar: 'https://wrk.money/wrk_files/pulsepfp.png' },
+              'insanity':{ displayName: 'jerry',   bioStatements: ['just a chill dude.'], avatar: 'https://wrk.money/wrk_files/jerrypfp.jpg' },
+            };
+            profile = STATIC_OG[slug] || null;
+          }
           if (profile) return serveOGPage(profile, req.url);
         }
       }
