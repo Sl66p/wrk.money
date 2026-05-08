@@ -415,6 +415,7 @@ async function updateProfile(slug, req, env, corsHeaders) {
     musicTitle: body.musicEnabled ? String(body.musicTitle || '').trim().slice(0, 80) || null : null,
     bgUrl: toRawFileUrl(String(body.bgUrl || '').trim()).slice(0, 500) || null,
     bgType: ['image', 'video'].includes(body.bgType) ? body.bgType : null,
+    accentColor: /^#[0-9a-fA-F]{6}$/.test(body.accentColor) ? body.accentColor : null,
     updatedAt: Date.now(),
   };
 
