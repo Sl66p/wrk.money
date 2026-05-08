@@ -241,7 +241,7 @@
                 <div class="progress-container" id="p-progress-container">
                     <div class="progress-bar" id="p-progress-bar"></div>
                 </div>
-                <audio id="p-audio" src="${escHtml(profile.musicUrl)}" loop></audio>
+                <audio id="p-audio" src="${escHtml(profile.musicUrl)}" loop crossorigin="anonymous"></audio>
             `;
             document.getElementById('p-tabs').before(audioBox);
 

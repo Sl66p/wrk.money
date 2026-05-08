@@ -391,7 +391,7 @@
             <div class="progress-container" id="progressContainer">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
-            <audio id="audio" src="/wrk_files/we_dont_get_along.mp3" loop></audio>
+            <audio id="audio" src="/wrk_files/we_dont_get_along.mp3" loop crossorigin="anonymous"></audio>
         </div>
 
         <div class="nav-group">
@@ -524,7 +524,7 @@
             let audioConnected = false, analyserNode = null, audioData = null;
             function hookAudio() {
                 if (audioConnected) return;
-                const audioEl = document.getElementById('p-audio');
+                const audioEl = document.getElementById('p-audio') || document.getElementById('audio');
                 if (!audioEl) return;
                 try {
                     const audioCtx = new AudioContext();
